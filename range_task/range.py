@@ -5,7 +5,6 @@ class Range:
 
         self.__start = start
         self.__end = end
-        self.__length = end - start
 
     @property
     def start(self):
@@ -25,37 +24,40 @@ class Range:
 
     @property
     def length(self):
-        return self.__length
+        return self.__end - self.__start
 
     def is_inside(self, point):
         return self.__start <= point <= self.__end
 
-    def get_intersection(self, range_2):
-        if max(self.__start, range_2.__start) < min(self.__end, range_2.__end):
-            return Range(max(self.__start, range_2.__start), min(self.__end, range_2.__end))
+    def get_intersection(self, other_range):
+        max_start = max(self.__start, other_range.__start)
+        min_end = min(self.__end, other_range.__end)
+
+        if max_start < min_end:
+            return Range(max_start, min_end)
 
         return None
 
-    def get_union(self, range_2):
-        if max(self.__start, range_2.__start) <= min(self.__end, range_2.__end):
-            return Range(min(self.__start, range_2.__start), max(self.__end, range_2.__end))
+    def get_union(self, other_range):
+        if max(self.__start, other_range.__start) <= min(self.__end, other_range.__end):
+            return Range(min(self.__start, other_range.__start), max(self.__end, other_range.__end))
 
-        return [Range(self.__start, self.__end), Range(range_2.__start, range_2.__end)]
+        return [Range(self.__start, self.__end), Range(other_range.__start, other_range.__end)]
 
-    def get_difference(self, range_2):
-        if self.__start > range_2.__start and self.__end < range_2.__end:
+    def get_difference(self, other_range):
+        if self.__start >= other_range.__start and self.__end <= other_range.__end:
             return []
 
-        if self.__start < range_2.__start and self.__end > range_2.__end:
-            return Range(self.__start, range_2.__start)
+        if self.__start < other_range.__start and self.__end > other_range.__end:
+            return [Range(self.__start, other_range.__start), Range(other_range.__start, self.__end)]
 
-        if self.__start < range_2.__start < self.__end:
-            return Range(self.__start, range_2.__start)
+        if self.__start < other_range.__start < self.__end:
+            return Range(self.__start, other_range.__start)
 
-        if self.__start < range_2.__end < self.__end:
-            return Range(range_2.__end, self.__end)
+        if self.__start < other_range.__end < self.__end:
+            return Range(other_range.__end, self.__end)
 
-        return [Range(self.__start, self.__end), Range(range_2.__start, range_2.__end)]
+        return Range(self.__start, self.__end)
 
     def __repr__(self):
-        return '(%s; %s)' % (self.__start, self.__end)
+        return f'({self.__start}, {self.__end})'
