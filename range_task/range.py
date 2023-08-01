@@ -49,7 +49,7 @@ class Range:
             return []
 
         if self.__start < other_range.__start and self.__end > other_range.__end:
-            return [Range(self.__start, other_range.__start), Range(other_range.__start, self.__end)]
+            return [Range(self.__start, other_range.__start), Range(other_range.__end, self.__end)]
 
         if self.__start < other_range.__start < self.__end:
             return Range(self.__start, other_range.__start)
