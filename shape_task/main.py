@@ -1,12 +1,21 @@
-from shape import Square, Triangle, Rectangle, Circle
+from triangle import Triangle
+from square import Square
+from rectangle import Rectangle
+from circle import Circle
 
 
 def get_max_area_shape(shapes):
+    if not shapes:
+        raise IndexError('Список фигур пуст')
+
     return sorted(shapes, key=lambda shape: shape.get_area(), reverse=True)[0]
 
 
 def get_second_largest_perimeter_shape(shapes):
-    return sorted(shapes, key=lambda shape: shape.get_perimetr(), reverse=True)[1]
+    if not shapes:
+        raise IndexError('Список фигур пуст')
+
+    return sorted(shapes, key=lambda shape: shape.get_perimeter(), reverse=True)[1]
 
 
 # площадь; периметр
