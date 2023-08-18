@@ -1,6 +1,5 @@
-import math
-
 from shape import Shape
+import math
 
 
 class Circle(Shape):
@@ -28,7 +27,7 @@ class Circle(Shape):
         return 2 * math.pi * self.__radius
 
     def get_area(self):
-        return math.pi * pow(self.__radius, 2)
+        return math.pi * self.__radius ** 2
 
     def __hash__(self):
         return hash(self.__radius)

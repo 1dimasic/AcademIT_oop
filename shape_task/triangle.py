@@ -1,11 +1,10 @@
 import math
-
 from shape import Shape
 
 
 class Triangle(Shape):
-    def __init__(self, x1, y1, x2, y2, x3, y3):
-        coordinates = (x1, y1, x2, y2, x3, y3)
+    def __init__(self, *coordinates):
+        x1, y1, x2, y2, x3, y3 = coordinates
 
         for coordinate in coordinates:
             if not isinstance(coordinate, int | float):
@@ -77,9 +76,9 @@ class Triangle(Shape):
         return math.sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2))
 
     def get_sides_lengths(self):
-        side_1_length = Triangle.get_side_length(self.__x1, self.__y1, self.__x2, self.__y2)
-        side_2_length = Triangle.get_side_length(self.__x2, self.__y2, self.__x3, self.__y3)
-        side_3_length = Triangle.get_side_length(self.__x3, self.__y3, self.__x1, self.__y1)
+        side_1_length = self.get_side_length(self.__x1, self.__y1, self.__x2, self.__y2)
+        side_2_length = self.get_side_length(self.__x2, self.__y2, self.__x3, self.__y3)
+        side_3_length = self.get_side_length(self.__x3, self.__y3, self.__x1, self.__y1)
 
         return side_1_length, side_2_length, side_3_length
 
