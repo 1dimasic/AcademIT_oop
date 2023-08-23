@@ -73,6 +73,9 @@ class Matrix:
         return True
 
     def __repr__(self):
+        return '{%s}' % ', '.join(map(str, self.__matrix))
+
+    def __str__(self):
         matrix = ''
         width = len(str(max(item for row in self.__matrix for item in row)))
 
@@ -223,14 +226,15 @@ class Matrix:
 
         raise TypeError
 
-    def transpose_matrix(self):
+    def transpose(self):
         return Matrix([list(vector) for vector in zip(*self.__matrix)])
 
     def get_minor(self, i):
-        return Matrix([column[:i] + column[i + 1:] for column in self.__matrix[1:]])
+        return Matrix([list(vector)[:i] + list(vector)[i + 1:] for vector in self.__matrix[1:]])
 
     def get_determinant(self):
         size = self.size
+
         if size[0] != size[1]:
             raise ValueError
 
@@ -258,8 +262,8 @@ print(matrix_3)
 
 # matrix_1 = Matrix([[1, 2], [3, 4]])
 matrix_11 = Matrix([[2, 1], [1, 2], [3, 4]])
-matrix_2 = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+matrix_2 = Matrix([[2, 2, 3], [4, 5, 6], [7, 8, 10]])
 matrix_3 = Matrix([[1, 2], [2, 1]])
 vector_1 = Vector([3, 4])
 
-print(matrix_2.get_determinant())
+print(len(matrix_2))
