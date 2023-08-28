@@ -29,7 +29,7 @@ class Matrix:
                     max_size = len(max(args[0], key=len))
 
                     for i in range(len(args[0])):
-                        self.__matrix.append(Vector(max_size, list(args[0][i])))
+                        self.__matrix.append(Vector(max_size, args[0][i].components))
 
                     return
 
@@ -261,9 +261,9 @@ print(matrix_3)
 # matrix_1[0] = Vector([4, 3, 2, 1])
 
 # matrix_1 = Matrix([[1, 2], [3, 4]])
-matrix_11 = Matrix([[2, 1], [1, 2], [3, 4]])
-matrix_2 = Matrix([[2, 2, 3], [4, 5, 6], [7, 8, 10]])
-matrix_3 = Matrix([[1, 2], [2, 1]])
-vector_1 = Vector([3, 4])
-
-print(len(matrix_2))
+# matrix_11 = Matrix([[2, 1], [1, 2], [3, 4]])
+# matrix_2 = Matrix([[2, 2, 3], [4, 5, 6], [7, 8, 10]])
+# matrix_3 = Matrix([[1, 2], [2, 1]])
+# vector_1 = Vector([3, 4])
+#
+# print(len(matrix_2))
