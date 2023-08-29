@@ -6,29 +6,57 @@ class SinglyLinkedList:
     def get_size(self):
         return self.__count
 
-    def insert_at_beginning(self, data):
+    def get_first_item(self):
+        return self.__head.data
+
+    def add(self, data):
         list_item = ListItem(data, self.__head)
         self.__head = list_item
         self.__count += 1
 
-    def delete_at_beginning(self):
+    def delete(self):
         value = self.__head.data
         self.__head = self.__head.next_item
         self.__count -= 1
 
         return value
 
-    def pivot(self, tail=None):
+    def reverse(self):
+        previous_item = None
         current_item = self.__head
+        next_item = current_item.next_item
 
-        while current_item is not None:
-            self.__head, tail, self.__head = tail, self.__head, self.__head.next_item
+        while current_item:
+            current_item.next_item = previous_item
+            previous_item = current_item
+            current_item = next_item
 
-        return tail
+            if next_item:
+                next_item = next_item.next_item
 
-    def insert_by_index(self, index, data):
+        self.__head = previous_item
+
+    def copy(self):
+        current_item = self.__head
+        current_index = 0
+        other = SinglyLinkedList()
+
+        while current_item:
+            other.insert(current_index, current_item.data)
+            current_item = current_item.next_item
+            current_index += 1
+
+        return other
+
+    def insert(self, index, data):
+        if not isinstance(index, int):
+            raise TypeError
+
+        if index < 0 or index > self.__count:
+            raise IndexError
+
         if index == 0:
-            self.add_at_beginning(data)
+            self.add(data)
 
             return
 
@@ -50,12 +78,18 @@ class SinglyLinkedList:
 
         self.__count += 1
 
-    def get_by_index(self, index):
+    def __getitem__(self, item):
+        if not isinstance(item, int):
+            raise TypeError
+
+        if item < 0 or item > self.__count:
+            raise IndexError
+
         current_item = self.__head
         current_index = 0
 
         while current_item is not None:
-            if current_index == index:
+            if current_index == item:
                 return current_item.data
 
             current_index += 1
@@ -63,27 +97,11 @@ class SinglyLinkedList:
 
         return None
 
-    def delete_item(self, value):
-        current_item = self.__head
-        previous_item = None
-
-        while current_item is not None:
-            if current_item.data == value:
-                previous_item.next_item = current_item.next_item
-                current_item.next_item = None
-
-                return True
-
-            previous_item = current_item
-            current_item = current_item.next_item
-
-        return False
-
-    def get_first_item(self):
-        return self.__head.data
-
     def __setitem__(self, key, value):
-        if key < 0 or self.__count < key:
+        if not isinstance(key, int):
+            raise TypeError
+
+        if key < 0 or key > self.__count:
             raise IndexError
 
         current_item = self.__head
@@ -98,6 +116,12 @@ class SinglyLinkedList:
             current_item = current_item.next_item
 
     def __delitem__(self, key):
+        if not isinstance(key, int):
+            raise TypeError
+
+        if key < 0 or key > self.__count:
+            raise IndexError
+
         current_item = self.__head
         previous_item = None
         current_index = 0
@@ -114,6 +138,22 @@ class SinglyLinkedList:
             current_index += 1
 
         self.__count -= 1
+
+    def delete_by_value(self, value):
+        current_item = self.__head
+        previous_item = None
+
+        while current_item is not None:
+            if current_item.data == value:
+                previous_item.next_item = current_item.next_item
+                current_item.next_item = None
+
+                return True
+
+            previous_item = current_item
+            current_item = current_item.next_item
+
+        return False
 
     def __repr__(self):
         current_item = self.__head
@@ -149,11 +189,10 @@ class ListItem:
 
 
 lst = SinglyLinkedList()
-lst.insert_at_beginning(5)
-lst.insert_at_beginning(-2)
-lst.insert_at_beginning(6)
-lst.insert_at_beginning(0)
-lst.insert_at_beginning(9)
+lst.add(4)
+lst.add(3)
+lst.add(2)
+lst.add(1)
 print(lst)
-lst.pivot()
-print(lst)
+lst_1 = lst.copy()
+print(lst_1)
