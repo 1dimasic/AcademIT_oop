@@ -55,18 +55,11 @@ class Vector:
 
     @property
     def length(self):
-        return math.sqrt(sum(list(map(lambda x: x ** 2, self.__components))))
-
-    @property
-    def components(self):
-        return self.__components
+        return math.sqrt(sum(map(lambda x: x * x, self.__components)))
 
     def __raise_size(self, other):
         if self.size < other.size:
             self.__components.extend((other.size - self.size) * [0])
-
-    def __len__(self):
-        return len(self.__components)
 
     def __iadd__(self, other):
         if not isinstance(other, Vector):
@@ -75,7 +68,7 @@ class Vector:
         self.__raise_size(other)
 
         for i in range(other.size):
-            self.__components[i] = self.__components[i] + other.__components[i]
+            self.__components[i] += other.__components[i]
 
         return self
 
@@ -86,20 +79,18 @@ class Vector:
         self.__raise_size(other)
 
         for i in range(other.size):
-            self.__components[i] = self.__components[i] - other.__components[i]
+            self.__components[i] -= other.__components[i]
 
         return self
 
-    # def __imul__(self, other):
-    #     if not isinstance(other, Vector):
-    #         raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
-    #
-    #     product = 0
-    #
-    #     for component_1, component_2 in zip(self.__components, other.__components):
-    #         product += component_1 * component_2
-    #
-    #     return product
+    def __imul__(self, other):
+        if not isinstance(other, int | float):
+            raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
+
+        for i in range(self.size):
+            self.__components[i] *= other
+
+        return self
 
     def __add__(self, other):
         if not isinstance(other, Vector):
@@ -108,10 +99,8 @@ class Vector:
         self.__raise_size(other)
         component = [0] * self.size
 
-        for i in range(other.size):
+        for i, j in zip(range(other.size), range(other.size, self.size)):
             component[i] = self.__components[i] + other.__components[i]
-
-        for j in range(other.size, self.size):
             component[j] = self.__components[j]
 
         return Vector(component)
@@ -123,21 +112,24 @@ class Vector:
         self.__raise_size(other)
         component = [0] * self.size
 
-        for i in range(other.size):
+        for i, j in zip(range(other.size), range(other.size, self.size)):
             component[i] = self.__components[i] - other.__components[i]
-
-        for j in range(other.size, self.size):
             component[j] = self.__components[j]
 
         return Vector(component)
 
     def __mul__(self, other):
-        product = 0
+        if not isinstance(other, int | float):
+            raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
 
-        for component_1, component_2 in zip(self.__components, other.__components):
-            product += component_1 * component_2
+        component = [0] * self.size
 
-        return product
+        for i in range(self.size):
+            component[i] = self.__components[i] * other
+
+        return Vector(component)
+
+    __rmul__ = __mul__
 
     def __getitem__(self, item):
         if not isinstance(item, int):
@@ -169,11 +161,13 @@ class Vector:
     def __hash__(self):
         return hash(tuple(self.__components))
 
-    def multiply_by_scalar(self, other):
-        if not isinstance(other, int | float):
-            raise TypeError
+    def scalar_product(self, other):
+        if not isinstance(other, Vector):
+            raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
 
-        for i in range(self.size):
-            self.__components[i] *= other
+        product = 0
 
-        return self
+        for component_1, component_2 in zip(self.__components, other.__components):
+            product += component_1 * component_2
+
+        return product
