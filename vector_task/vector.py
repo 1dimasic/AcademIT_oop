@@ -99,8 +99,10 @@ class Vector:
         self.__raise_size(other)
         component = [0] * self.size
 
-        for i, j in zip(range(other.size), range(other.size, self.size)):
+        for i in range(other.size):
             component[i] = self.__components[i] + other.__components[i]
+
+        for j in range(other.size, self.size):
             component[j] = self.__components[j]
 
         return Vector(component)
@@ -112,8 +114,10 @@ class Vector:
         self.__raise_size(other)
         component = [0] * self.size
 
-        for i, j in zip(range(other.size), range(other.size, self.size)):
+        for i in range(other.size):
             component[i] = self.__components[i] - other.__components[i]
+
+        for j in range(other.size, self.size):
             component[j] = self.__components[j]
 
         return Vector(component)
