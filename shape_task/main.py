@@ -28,6 +28,6 @@ rectangle_2 = Rectangle(2, 5)  # 10; 14
 circle_1 = Circle(5)  # 78.5; 31,4
 circle_2 = Circle(3)  # 28.26; 18,84
 
-shapes_list = [triangle_1 , triangle_2, square_1, square_2, rectangle_1, rectangle_2, circle_1, circle_2]
+shapes_list = [triangle_1, triangle_2, square_1, square_2, rectangle_1, rectangle_2, circle_1, circle_2]
 print(f'Максимальная площадь у фигуры {get_max_area_shape(shapes_list)}')
 print(f'Второй по величине периметр у фигуры {get_second_largest_perimeter_shape(shapes_list)}')

@@ -27,7 +27,7 @@ class Circle(Shape):
         return 2 * math.pi * self.__radius
 
     def get_area(self):
-        return math.pi * self.__radius ** 2
+        return math.pi * self.__radius * self.__radius
 
     def __hash__(self):
         return hash(self.__radius)
