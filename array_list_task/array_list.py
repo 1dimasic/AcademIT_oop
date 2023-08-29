@@ -3,197 +3,203 @@ from collections.abc import MutableSequence
 
 class ArrayList(MutableSequence):
     def __init__(self, capacity=10):
-        self.items = [None] * capacity
-        self.size = 0
+        self.__items = [None] * capacity
+        self.__size = 0
 
     def __getitem__(self, item):
         if not isinstance(item, int):
-            raise TypeError
+            raise TypeError(f'Incorrect type of argument "{type(item).__name__}"')
 
-        if item < 0 or item > self.size - 1:
-            raise IndexError
+        if item < 0 or item > self.__size - 1:
+            raise IndexError(f'Incorrect index value, must be in ({0, self.__size - 1})')
 
-        return self.items[item]
+        return self.__items[item]
 
     def __setitem__(self, key, value):
         if not isinstance(key, int):
-            raise TypeError
+            raise TypeError(f'Incorrect type of argument "{type(key).__name__}"')
 
-        if key < 0 or key > self.size - 1:
-            raise IndexError
+        if key < 0 or key > self.__size - 1:
+            raise IndexError(f'Incorrect index value, must be in ({0, self.__size - 1})')
 
-        self.items[key] = value
+        self.__items[key] = value
 
     def __delitem__(self, key):
         if not isinstance(key, int):
-            raise TypeError
+            raise TypeError(f'Incorrect type of argument "{type(key).__name__}"')
 
-        if key < 0 or key > self.size - 1:
-            raise IndexError
+        if key < 0 or key > self.__size - 1:
+            raise IndexError(f'Incorrect index value, must be in ({0, self.__size - 1})')
 
         self.pop(key)
 
     def __ensure_capacity(self, size):
-        if len(self.items) >= size:
+        if len(self.__items) >= size:
             return
 
-        self.items = self.items + [None] * (size - len(self.items))
+        self.__items = self.__items + [None] * (size - len(self.__items))
 
     def __trim_to_size(self):
-        if self.size < len(self.items):
-            self.items = self.items[:self.size]
+        if self.__size < len(self.__items):
+            self.__items = self.__items[:self.__size]
 
     def __increase_capacity(self):
-        self.items = self.items + [None] * len(self.items)
+        self.__items = self.__items + [None] * len(self.__items)
 
     def __len__(self):
-        return self.size
+        return self.__size
 
     def __iter__(self):
-        for i in range(self.size):
-            yield self.items[i]
+        for i in range(self.__size):
+            yield self.__items[i]
 
     def insert(self, key, value):
         if not isinstance(key, int):
-            raise TypeError
+            raise TypeError(f'Incorrect type of argument "{type(key).__name__}"')
 
-        if key < 0 or key > self.size - 1:
-            raise ValueError
+        if key < 0 or key > self.__size:
+            raise IndexError(f'Incorrect index value, must be in ({0, self.__size})')
 
-        if self.size >= len(self.items):
+        if self.__size >= len(self.__items):
             self.__increase_capacity()
 
-        for i in range(self.size, index - 1, -1):
-            self.items[i] = self.items[i - 1]
+        if key == self.__size:
+            self.__items[key] = value
+            self.__size += 1
 
-        self.items[key] = value
-        self.size += 1
+            return
 
-    def append(self, element):
-        if self.size >= len(self.items):
+        for i in range(self.__size, key - 1, -1):
+            self.__items[i] = self.__items[i - 1]
+
+        self.__items[key] = value
+
+    def append(self, value):
+        if self.__size >= len(self.__items):
             self.__increase_capacity()
 
-        self.items[self.size] = element
-        self.size += 1
+        self.__items[self.__size] = value
+        self.__size += 1
 
     def extend(self, other):
         if not isinstance(other, ArrayList):
-            raise TypeError
+            raise TypeError(f'Incorrect type of argument "{type(key).__name__}"')
 
-        self.__ensure_capacity(self.size + other.size)
+        self.__ensure_capacity(self.__size + other.__size)
 
-        for i in range(self.size, self.size + other.size):
-            self.items[i] = other.items[i - self.size]
+        for i in range(self.__size, self.__size + other.__size):
+            self.__items[i] = other.__items[i - self.__size]
 
-        self.size += other.size
+        self.__size += other.__size
 
     def pop(self, index=None):
         if index is None:
-            self.items[self.size - 1] = None
-            self.size -= 1
+            self.__items[self.__size - 1] = None
+            self.__size -= 1
             return
 
-        if index < 0 or index > self.size - 1:
-            raise IndexError
+        if not isinstance(index, int):
+            raise TypeError(f'Incorrect type of argument "{type(index).__name__}"')
 
-        value = self.items[index]
-        for i in range(index, self.size - 1):
-            self.items[i] = self.items[i + 1]
+        if index < 0 or index > self.__size - 1:
+            raise IndexError(f'Incorrect index value, must be in ({0, self.__size - 1})')
 
-        self.items[self.size - 1] = None
-        self.size -= 1
+        value = self.__items[index]
+        for i in range(index, self.__size - 1):
+            self.__items[i] = self.__items[i + 1]
+
+        self.__items[self.__size - 1] = None
+        self.__size -= 1
 
         return value
 
     def remove(self, value):
-        for i in range(self.size):
-            if self.items[i] == value:
+        for i in range(self.__size):
+            if self.__items[i] == value:
                 self.pop(i)
                 return
 
-        raise ValueError
+        raise ValueError(f'No value in list')
 
     def __iadd__(self, other):
         if not isinstance(other, ArrayList):
-            raise TypeError
+            raise TypeError(f'Incorrect type of argument "{type(key).__name__}"')
 
-        size = self.size + other.size
+        size = self.__size + other.__size
         self.__ensure_capacity(size)
 
-        for i in range(self.size, size):
-            self.items[i] = other.items[i - self.size]
+        for i in range(self.__size, size):
+            self.__items[i] = other.__items[i - self.__size]
 
-        self.size += other.size
+        self.__size += other.__size
 
         return self
 
     def __contains__(self, item):
-        return item in self.items
+        return item in self.__items
 
     def __reversed__(self):
-        for i in range(self.size - 1, -1, -1):
-            yield self.items[i]
+        for i in range(self.__size - 1, -1, -1):
+            yield self.__items[i]
 
     def index(self, value, *searching_range):
         if len(searching_range) == 2:
             if all(isinstance(_, int) for _ in searching_range):
-                if all(0 <= _ <= self.size - 1 for _ in searching_range):
+                if all(0 <= _ <= self.__size - 1 for _ in searching_range):
                     if searching_range[0] > searching_range[1]:
                         searching_range = searching_range[::-1]
 
                     for i in range(searching_range[0], searching_range[1]):
-                        if self.items[i] == value:
+                        if self.__items[i] == value:
                             return i
 
-                    raise ValueError
+                    raise ValueError(f'No value in list')
 
-                raise IndexError
+                raise IndexError(f'Incorrect index value, must be in ({0, self.__size - 1})')
 
-            raise TypeError
+            raise TypeError(f'Incorrect type of argument "{type(searching_range[0]).__name__} or '
+                            f'{type(searching_range[1]).__name__}"')
 
         if len(searching_range) == 1:
             if isinstance(searching_range[0], int):
-                if 0 <= searching_range[0] <= self.size - 1:
-                    for i in range(searching_range[0], self.size):
-                        if self.items[i] == value:
+                if 0 <= searching_range[0] <= self.__size - 1:
+                    for i in range(searching_range[0], self.__size):
+                        if self.__items[i] == value:
                             return i
 
-                    raise ValueError
+                    raise ValueError(f'No value in list')
 
-                raise IndexError
+                raise IndexError(f'Incorrect index value, must be in ({0, self.__size - 1})')
 
-            raise TypeError
+            raise TypeError(f'Incorrect type of argument "{type(searching_range[0]).__name__}')
 
-        for i in range(self.size):
-            if self.items[i] == value:
-                return i
+        if len(searching_range) == 0:
+            for i in range(self.__size):
+                if self.__items[i] == value:
+                    return i
 
-        raise ValueError
+            raise ValueError(f'No value in list')
 
-    def count(self, element):
-        if not element:
-            raise ValueError
+        raise ValueError('Invalid number of arguments')
+
+    def count(self, value):
+        if not value:
+            raise ValueError('Invalid number of arguments')
 
         count = 0
-        for i in range(self.size):
-            if self.items[i] == element:
+        for i in range(self.__size):
+            if self.__items[i] == value:
                 count += 1
 
         return count
 
     def reverse(self):
-        for i in range(self.size // 2):
-            self.items[i], self.items[self.size - 1 - i] = self.items[self.size - 1 - i], self.items[i]
+        for i in range(self.__size // 2):
+            self.__items[i], self.__items[self.__size - 1 - i] = self.__items[self.__size - 1 - i], self.__items[i]
 
+    def __repr__(self):
+        string = ''
+        for i in range(len(self.__items)):
+            string += str(self.__items[i]) + ' '
 
-a = ArrayList(3)
-a.append(5)
-a.append(8)
-a.append(-3)
-a.append(0)
-b = ArrayList(2)
-b.append(6)
-b.append(7)
-print(a.__delitem__(1))
-print(a.items)
-
+        return string
