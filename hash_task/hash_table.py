@@ -3,42 +3,45 @@ from collections.abc import Collection
 
 class HashTable(Collection):
     def __init__(self, capacity=10):
-        self.items = [...] * capacity
-        self.size = 0
+        self.__items = [...] * capacity
+        self.__size = 0
 
     def __contains__(self, item):
-        return item in self.items
+        return item in self.__items
 
     def __len__(self):
-        return len(self.items)
+        return len(self.__items)
 
     def __iter__(self):
-        for i in range(len(self.items)):
-            if self.items[i] is Ellipsis:
+        for i in range(len(self.__items)):
+            if self.__items[i] is Ellipsis:
                 continue
 
-            for j in range(len(self.items[i])):
-                yield self.items[i][j]
+            for j in range(len(self.__items[i])):
+                yield self.__items[i][j]
 
     def add(self, value):
-        index = abs(hash(value) % len(self.items))
-        if self.items[index] is not Ellipsis:
-            self.items[index].append(value)
+        index = abs(hash(value) % len(self.__items))
+        if self.__items[index] is not Ellipsis:
+            self.__items[index].append(value)
 
         else:
-            self.items[index] = [value]
+            self.__items[index] = [value]
 
-        self.size += 1
+        self.__size += 1
 
+    def find(self, value):
+        index = abs(hash(value) % len(self.__items))
+        if self.__items[index] is Ellipsis:
+            return None
 
-a = HashTable(5)
-a.add(2)
-a.add(4)
-a.add(-5)
-a.add(10)
-print(a.items, a.size)
-b = iter(a)
-print(b.__next__())
-print(b.__next__())
-print(b.__next__())
-print(b.__next__())
+        for i in range(len(self.__items[index])):
+            if self.__items[index][i] == value:
+                return index, i
+
+    def __repr__(self):
+        hash_table = ''
+        for items in self.__items:
+            hash_table += str(items) + ' '
+
+        return hash_table
