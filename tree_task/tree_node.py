@@ -24,5 +24,14 @@ class TreeNode:
     def data(self):
         return self.__data
 
+    def __lt__(self, other):
+        return self.__data < other.__data
+
+    def __eq__(self, other):
+        return self.__data == other.__data
+
+    def __hash__(self):
+        return hash(self.__data)
+
     def __repr__(self):
         return '%s' % self.__data

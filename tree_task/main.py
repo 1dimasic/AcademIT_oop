@@ -1,17 +1,24 @@
 from tree_task.tree import Tree
 
-tree = Tree()
-tree_list = [10, 7, 16, 5, 8, 14, 20, 4, 6, 7, 9, 13, 15, 21, 19]
-tree_list1 = [10, 7, 16, 6, 8, 20]
-for node in tree_list1:
-    tree.add(node)
+tree_1 = Tree()
+tree_2 = Tree()
 
-# tree.visiting_in_depth_with_recursion()
-# print()
-# tree.visiting_in_depth()
-# print()
-tree.visiting_in_width()
+tree_list_1 = [20, 15, 24, 7, 18, 21, 26, 5, 8, 16, 19, 20, 23, 25, 27, 17, 25, 9]
+tree_list_2 = [20, 15, 25, 10, 16, 23, 26, 24]
+
+for node in tree_list_1:
+    tree_1.add(node)
+
+for node in tree_list_2:
+    tree_2.add(node)
+
+tree_1.breadth_first_search()
 print()
-tree.delete(16)
+tree_1.depth_first_search()
 print()
-tree.visiting_in_width()
+tree_1.iterative_deepening_depth_first_search()
+print()
+
+print(tree_1.find(25)[0])
+
+
