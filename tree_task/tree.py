@@ -155,9 +155,10 @@ class Tree:
                     node.right = current_node.right
                     self.__root = node
 
+                self.__count -= 1
                 return
 
-                # если правое поддерево имеет только один узел
+            # если правое поддерево имеет только один узел
             if node is previous_node:
                 node.left = current_node.left
 
@@ -170,6 +171,7 @@ class Tree:
                 current_node.left = None
                 current_node.right = None
 
+                self.__count -= 1
                 return
 
             # самый левый элемент в правом поддереве не имеет правого ребенка
@@ -183,6 +185,7 @@ class Tree:
                 node.right = previous_node
                 node.left = current_node.left
 
+                self.__count -= 1
                 return
 
             # самый левый элемент в правом поддереве имеет правого ребенка
@@ -199,6 +202,7 @@ class Tree:
             node.left = current_node.left
             node.right = current_node.right
 
+            self.__count -= 1
             return
 
         # удаление узла с одним ребенком
@@ -212,6 +216,7 @@ class Tree:
             else:
                 parent_node.right = child
 
+            self.__count -= 1
             return
 
         # удаление узла без детей
@@ -220,3 +225,5 @@ class Tree:
 
         else:
             parent_node.right = None
+
+        self.__count -= 1
