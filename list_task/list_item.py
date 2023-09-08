@@ -1,7 +1,7 @@
 class ListItem:
-    def __init__(self, data, next_=None):
+    def __init__(self, data, next=None):
         self.__data = data
-        self.__next_ = next_
+        self.__next = next
 
     @property
     def data(self):
@@ -12,9 +12,9 @@ class ListItem:
         self.__data = data
 
     @property
-    def next_(self):
-        return self.__next_
+    def next(self):
+        return self.__next
 
-    @next_.setter
-    def next_(self, next_):
-        self.__next_ = next_
+    @next.setter
+    def next(self, next):
+        self.__next = next

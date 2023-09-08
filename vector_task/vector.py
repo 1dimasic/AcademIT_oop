@@ -4,41 +4,59 @@ import math
 class Vector:
     def __init__(self, *args):
         if len(args) > 2:
-            raise ValueError('Invalid number of arguments > 2')
+            raise ValueError(f'Invalid number of arguments = {len(args)}')
 
         if len(args) == 2:
-            if isinstance(args[0], int):
-                if args[0] < 0:
+            size = args[0]
+            components = args[1][:]
+
+            if isinstance(size, int):
+                if size <= 0:
                     raise ValueError('Size of the vector must be > 0')
 
-                if isinstance(args[1], list):
-                    self.__components = args[1][:]
+                if isinstance(components, list):
+                    if all(isinstance(component, int | float) for component in components):
 
-                    if args[0] > len(args[1]):
-                        self.__components.extend([0] * (args[0] - len(args[1])))
+                        self.__components = components[:]
 
-                    return
+                        if size > len(components):
+                            self.__components.extend([0] * (size - len(components)))
 
-                raise TypeError(f'Incorrect type of arguments "{type(args[1]).__name__}"')
+                        return
 
-            raise TypeError(f'Incorrect type of arguments "{type(args[0]).__name__}"')
+                    raise ValueError(f'Vector components must be numbers')
+
+                raise TypeError(f'Incorrect type of arguments "{type(components).__name__}"')
+
+            raise TypeError(f'Incorrect type of arguments "{type(size).__name__}"')
 
         if len(args) == 1:
             if isinstance(args[0], int):
-                if args[0] > 0:
-                    self.__components = [0] * args[0]
+                size = args[0]
+
+                if size > 0:
+                    self.__components = [0] * size
 
                     return
 
                 raise ValueError('Size of the vector must be > 0')
 
             if isinstance(args[0], list):
-                self.__components = args[0][:]
+                components = args[0][:]
+
+                if len(args[0]) <= 0:
+                    raise ValueError('Size of the vector must be > 0')
+
+                if not all(isinstance(component, int | float) for component in components):
+                    raise ValueError(f'Vector components must be numbers')
+
+                self.__components = components[:]
 
                 return
 
             if isinstance(args[0], Vector):
-                self.__components = args[0].__components[:]
+                vector = args[0]
+                self.__components = vector.__components[:]
 
                 return
 
@@ -57,15 +75,19 @@ class Vector:
     def length(self):
         return math.sqrt(sum(map(lambda x: x * x, self.__components)))
 
-    def __raise_size(self, other):
+    def __increase_size(self, other):
         if self.size < other.size:
             self.__components.extend((other.size - self.size) * [0])
+
+    def __iter__(self):
+        for component in self.__components:
+            yield component
 
     def __iadd__(self, other):
         if not isinstance(other, Vector):
             raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
 
-        self.__raise_size(other)
+        self.__increase_size(other)
 
         for i in range(other.size):
             self.__components[i] += other.__components[i]
@@ -76,7 +98,7 @@ class Vector:
         if not isinstance(other, Vector):
             raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
 
-        self.__raise_size(other)
+        self.__increase_size(other)
 
         for i in range(other.size):
             self.__components[i] -= other.__components[i]
@@ -96,48 +118,34 @@ class Vector:
         if not isinstance(other, Vector):
             raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
 
-        self.__raise_size(other)
-        component = [0] * self.size
+        amount = Vector(self)
+        amount += other
 
-        for i in range(other.size):
-            component[i] = self.__components[i] + other.__components[i]
-
-        for j in range(other.size, self.size):
-            component[j] = self.__components[j]
-
-        return Vector(component)
+        return amount
 
     def __sub__(self, other):
         if not isinstance(other, Vector):
             raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
 
-        self.__raise_size(other)
-        component = [0] * self.size
+        difference = Vector(self)
+        difference -= other
 
-        for i in range(other.size):
-            component[i] = self.__components[i] - other.__components[i]
-
-        for j in range(other.size, self.size):
-            component[j] = self.__components[j]
-
-        return Vector(component)
+        return difference
 
     def __mul__(self, other):
         if not isinstance(other, int | float):
             raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
 
-        component = [0] * self.size
+        product = Vector(self)
+        product *= other
 
-        for i in range(self.size):
-            component[i] = self.__components[i] * other
-
-        return Vector(component)
+        return product
 
     __rmul__ = __mul__
 
     def __getitem__(self, item):
         if not isinstance(item, int):
-            raise TypeError('Index must be int')
+            raise TypeError(f'Index must be int, not {type(item).__name__}')
 
         if item < 0 or item >= self.size:
             raise IndexError(f'Incorrect index value, must be in ({0, self.size - 1})')
@@ -146,7 +154,7 @@ class Vector:
 
     def __setitem__(self, key, value):
         if not isinstance(key, int):
-            raise TypeError('Index must be int')
+            raise TypeError(f'Index must be int, not {type(item).__name__}')
 
         if key < 0 or key >= self.size:
             raise IndexError(f'Incorrect index value, must be in ({0, self.size - 1})')
@@ -165,7 +173,7 @@ class Vector:
     def __hash__(self):
         return hash(tuple(self.__components))
 
-    def scalar_product(self, other):
+    def get_scalar_product(self, other):
         if not isinstance(other, Vector):
             raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
 

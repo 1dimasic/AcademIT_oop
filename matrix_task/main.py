@@ -44,5 +44,6 @@ print(f'Матрица {matrix_1} равна матрице {matrix_3}.....{matr
 
 matrix_1 = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
 print(f'Вектор-столбец под индексом 0 равен {matrix_1.get_column(0)}')
-print(f'Транспонированная матрица {matrix_1.transpose()}')
+matrix_1.transpose()
+print(f'Транспонированная матрица {matrix_1}')
 print(f'Определитель матрицы равен {matrix_1.get_determinant()}')
