@@ -3,54 +3,28 @@ import math
 
 class Vector:
     def __init__(self, *args):
-        if len(args) > 2:
+        if len(args) > 2 or len(args) == 0:
             raise ValueError(f'Invalid number of arguments = {len(args)}')
-
-        if len(args) == 2:
-            size = args[0]
-            components = args[1][:]
-
-            if isinstance(size, int):
-                if size <= 0:
-                    raise ValueError('Size of the vector must be > 0')
-
-                if isinstance(components, list):
-                    if all(isinstance(component, int | float) for component in components):
-
-                        self.__components = components[:]
-
-                        if size > len(components):
-                            self.__components.extend([0] * (size - len(components)))
-
-                        return
-
-                    raise ValueError(f'Vector components must be numbers')
-
-                raise TypeError(f'Incorrect type of arguments "{type(components).__name__}"')
-
-            raise TypeError(f'Incorrect type of arguments "{type(size).__name__}"')
 
         if len(args) == 1:
             if isinstance(args[0], int):
                 size = args[0]
 
-                if size > 0:
-                    self.__components = [0] * size
+                if size <= 0:
+                    raise ValueError(f'Size of the vector must be > 0, not {size}')
 
-                    return
+                self.__components = [0] * size
 
-                raise ValueError('Size of the vector must be > 0')
+                return
 
             if isinstance(args[0], list):
-                components = args[0][:]
+                if len(args[0]) == 0:
+                    raise ValueError(f'Size of the vector must be > 0, not {len(args[0])}')
 
-                if len(args[0]) <= 0:
-                    raise ValueError('Size of the vector must be > 0')
-
-                if not all(isinstance(component, int | float) for component in components):
+                if not all(isinstance(component, int | float) for component in args[0]):
                     raise ValueError(f'Vector components must be numbers')
 
-                self.__components = components[:]
+                self.__components = args[0][:]
 
                 return
 
@@ -60,9 +34,24 @@ class Vector:
 
                 return
 
-            raise TypeError(f'Incorrect type of argument "{type(args[0]).__name__}"')
+        size = args[0]
 
-        raise ValueError('Invalid number of arguments 0')
+        if not isinstance(size, int):
+            raise TypeError(f'Incorrect type of arguments "{type(size).__name__}"')
+
+        if size <= 0:
+            raise ValueError(f'Size of the vector must be > 0, not {size}')
+
+        if not isinstance(args[1], list):
+            raise TypeError(f'Incorrect type of arguments "{type(size).__name__}"')
+
+        if not all(isinstance(component, int | float) for component in args[1]):
+            raise ValueError(f'Vector components must be numbers')
+
+        self.__components = args[1][:]
+
+        if size > len(self.__components):
+            self.__components.extend([0] * (size - len(self.__components)))
 
     def __repr__(self):
         return '{%s}' % ', '.join(map(str, self.__components))
@@ -118,10 +107,10 @@ class Vector:
         if not isinstance(other, Vector):
             raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
 
-        amount = Vector(self)
-        amount += other
+        vectors_sum = Vector(self)
+        vectors_sum += other
 
-        return amount
+        return vectors_sum
 
     def __sub__(self, other):
         if not isinstance(other, Vector):

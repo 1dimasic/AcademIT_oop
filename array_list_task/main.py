@@ -1,6 +1,6 @@
 from array_list_task.array_list import ArrayList
 
-array_list_1 = ArrayList(3)
+array_list_1 = ArrayList(4)
 array_list_1.append(5)
 array_list_1.append(8)
 array_list_1.append(-3)
@@ -26,14 +26,13 @@ array_list_1.pop()
 print(f'Array list: {array_list_1}, size: {len(array_list_1)}')
 array_list_1.pop(2)
 print(f'Array list: {array_list_1}, size: {len(array_list_1)}')
-array_list_1.remove(10)
+array_list_1.remove(5)
 print(f'Array list: {array_list_1}, size: {len(array_list_1)}')
 
 array_list_1 += array_list_2
 print(f'Array list: {array_list_1}, size: {len(array_list_1)}')
-
 print(f'Value 10 in array list: {array_list_1}....{10 in array_list_1}')
-print(f'Value 8 in array list: {array_list_1}.....{8 in array_list_1}')
+print(f'Value -8 in array list: {array_list_1}.....{-8 in array_list_1}')
 
 iterator = array_list_1.__iter__()
 print(iterator.__next__())
@@ -43,7 +42,7 @@ iterator = array_list_1.__reversed__()
 print(iterator.__next__())
 print(iterator.__next__())
 
-print(f'Value {array_list_1[2]} index = {array_list_1.index(1)}')
+print(f'Value {array_list_1[2]} index = {array_list_1.index(10)}')
 
 print(f'Value {array_list_1[2]} count = {array_list_1.count(array_list_1[2])}')
 print(f'Value 100 count = {array_list_1.count(100)}')

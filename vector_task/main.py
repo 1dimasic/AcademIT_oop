@@ -55,4 +55,5 @@ vector_2 = Vector(3, [1, 2, 3])
 vector_3 = Vector(vector_2)
 print(f'Результат операции {vector_2} == {vector_3} равен {vector_2 == vector_3}')
 
-print(f'Результат скалярного произведения векторов {vector_2} * {vector_4} равен {vector_2.get_scalar_product(vector_4)}')
+print(f'Результат скалярного произведения векторов {vector_2} * {vector_4} равен '
+      f'{vector_2.get_scalar_product(vector_4)}')

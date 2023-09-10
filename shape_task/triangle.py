@@ -6,9 +6,12 @@ class Triangle(Shape):
     def __init__(self, x1, y1, x2, y2, x3, y3):
         coordinates = x1, y1, x2, y2, x3, y3
 
-        for coordinate in coordinates:
-            if not isinstance(coordinate, int | float):
-                raise TypeError(f'Координаты должны быть числом. Сейчас {type(coordinate).__name__} {coordinate}')
+        for i in range(len(coordinates)):
+            if not isinstance(coordinates[i], int | float):
+                coordinate_name = 'x' if i % 2 == 0 else 'y'
+
+                raise TypeError(f'Координаты должны быть числом. Сейчас {coordinate_name}{int(i / 2 + 1)} '
+                                f'{type(coordinates[i]).__name__}')
 
         self.__x1 = x1
         self.__y1 = y1
