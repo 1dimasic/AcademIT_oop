@@ -8,13 +8,13 @@ class TreeNode:
     def left(self):
         return self.__left
 
-    @property
-    def right(self):
-        return self.__right
-
     @left.setter
     def left(self, other):
         self.__left = other
+
+    @property
+    def right(self):
+        return self.__right
 
     @right.setter
     def right(self, other):
@@ -24,14 +24,5 @@ class TreeNode:
     def data(self):
         return self.__data
 
-    def __lt__(self, other):
-        return self.__data < other.__data
-
-    def __eq__(self, other):
-        return self.__data == other.__data
-
-    def __hash__(self):
-        return hash(self.__data)
-
     def __repr__(self):
-        return '%s' % self.__data
+        return str(self.__data)

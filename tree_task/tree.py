@@ -3,17 +3,15 @@ from collections import deque
 
 
 class Tree:
-    def __init__(self):
+    def __init__(self, function=None):
         self.__root = None
         self.__count = 0
+        self.__function = function
 
     def __len__(self):
         return self.__count
 
     def add(self, data):
-        if not isinstance(data, int | float):
-            raise TypeError(f'Incorrect type of arguments "{type(data).__name__}"')
-
         node = TreeNode(data)
 
         if not self.__count:
@@ -24,7 +22,7 @@ class Tree:
         current_node = self.__root
 
         while True:
-            if node < current_node:
+            if self.compare(node.data, current_node.data):
                 if current_node.left:
                     current_node = current_node.left
                     continue
@@ -39,16 +37,23 @@ class Tree:
                 current_node.right = node
 
             self.__count += 1
-            break
+            return
 
-    def iterative_deepening_depth_first_search(self, node=None):
+    def visit_in_depth_with_recursion(self, node=None, function=None):
+        if self.__count == 0:
+            return
+
         if not node:
             node = self.__root
 
         if not isinstance(node, TreeNode):
             raise TypeError(f'Incorrect type of arguments "{type(node).__name__}"')
 
-        print(node, end=' ')
+        try:
+            function(node)
+        except TypeError:
+            pass
+
         children = node.left, node.right
 
         if all(not child for child in children):
@@ -58,17 +63,24 @@ class Tree:
             if not child:
                 continue
 
-            self.iterative_deepening_depth_first_search(child)
+            self.visit_in_depth_with_recursion(child)
 
-    def depth_first_search(self):
+    def visit_in_depth(self, function=None):
+        if self.__count == 0:
+            return
+
         tree_deque = deque()
         tree_deque.append(self.__root)
 
         while tree_deque:
-            print(tree_deque[0], end=' ')
+            node = tree_deque.popleft()
 
-            children = tree_deque[0].right, tree_deque[0].left
-            tree_deque.popleft()
+            try:
+                function(node)
+            except TypeError:
+                pass
+
+            children = node.right, node.left
 
             for child in children:
                 if not child:
@@ -76,15 +88,22 @@ class Tree:
 
                 tree_deque.appendleft(child)
 
-    def breadth_first_search(self):
+    def visit_in_width(self, function=None):
+        if self.__count == 0:
+            return
+
         tree_deque = deque()
         tree_deque.append(self.__root)
 
         while tree_deque:
-            print(tree_deque[-1], end=' ')
+            node = tree_deque.pop()
 
-            children = tree_deque[-1].left, tree_deque[-1].right
-            tree_deque.pop()
+            try:
+                function(node)
+            except TypeError:
+                pass
+
+            children = node.left, node.right
 
             for child in children:
                 if not child:
@@ -92,18 +111,19 @@ class Tree:
 
                 tree_deque.appendleft(child)
 
-    def find(self, value):
-        if not isinstance(value, int | float):
-            raise TypeError(f'Incorrect type of arguments "{type(value).__name__}"')
-
+    def find(self, data):
         parent_node = None
         current_node = self.__root
 
         while True:
-            if current_node.data == value:
-                return current_node, parent_node
+            if self.__function:
+                if self.__function(current_node.data) == self.__function(data):
+                    return current_node, parent_node
+            else:
+                if current_node.data == data:
+                    return current_node, parent_node
 
-            if value < current_node.data:
+            if self.compare(data, current_node.data):
                 if current_node.left:
                     parent_node = current_node
                     current_node = current_node.left
@@ -117,122 +137,11 @@ class Tree:
 
             return False
 
-    def delete(self, value):
-        if not isinstance(value, int | float):
-            raise TypeError(f'Incorrect type of arguments "{type(value).__name__}"')
-
+    def delete(self, data):
         try:
-            current_node, parent_node = self.find(value)
+            current_node, parent_node = self.find(data)
         except TypeError:
             return False
-
-        children = current_node.left, current_node.right
-
-        # удаляемый узел имеет 2 ребенка
-        if all(child for child in children):
-            node = current_node.right
-            previous_node = current_node.right
-
-            while node.left:
-                if node == previous_node:
-                    node = node.left
-
-                else:
-                    node = node.left
-                    previous_node = previous_node.left
-
-            # если удаляем корень
-            if current_node == self.__root and parent_node == self.__root:
-                if node.right:
-                    previous_node.left = node.right
-                    node.left = current_node.left
-                    node.right = current_node.right
-                    self.__root = node
-
-                else:
-                    previous_node.left = None
-                    node.left = current_node.left
-                    node.right = current_node.right
-                    self.__root = node
-
-                self.__count -= 1
-                return
-
-            # если правое поддерево имеет только один узел
-            if node is previous_node:
-                node.left = current_node.left
-
-                if parent_node > current_node:
-                    parent_node.left = node
-
-                else:
-                    parent_node.right = node
-
-                current_node.left = None
-                current_node.right = None
-
-                self.__count -= 1
-                return
-
-            # самый левый элемент в правом поддереве не имеет правого ребенка
-            if not node.right:
-                previous_node.left = None
-                if parent_node > current_node:
-                    parent_node.left = node
-                else:
-                    parent_node.right = node
-
-                node.right = previous_node
-                node.left = current_node.left
-
-                self.__count -= 1
-                return
-
-            # самый левый элемент в правом поддереве имеет правого ребенка
-            previous_node.left = node.right
-
-            if parent_node > current_node:
-                node.right = None
-                parent_node.left = node
-            else:
-                previous_node.left = node.right
-                node.right = None
-                parent_node.right = node
-
-            node.left = current_node.left
-            node.right = current_node.right
-
-            self.__count -= 1
-            return
-
-        # удаление узла с одним ребенком
-        for child in children:
-            if not child:
-                continue
-
-            if parent_node.left == current_node:
-                parent_node.left = child
-
-            else:
-                parent_node.right = child
-
-            self.__count -= 1
-            return
-
-        # удаление узла без детей
-        if parent_node.left == current_node:
-            parent_node.left = None
-
-        else:
-            parent_node.right = None
-
-        self.__count -= 1
-
-    def delete_2(self, value):
-        current_node, parent_node = self.find(value)
-
-        if not current_node:
-            return
 
         # удаляем лист
         if not current_node.left and not current_node.right:
@@ -268,7 +177,7 @@ class Tree:
         if current_node.left and not current_node.right or not current_node.left and current_node.right:
             child = current_node.left if current_node.left else current_node.right
 
-            if current_node < parent_node:
+            if self.compare(current_node.data, parent_node.data):
                 parent_node.left = child
             else:
                 parent_node.right = child
@@ -282,7 +191,7 @@ class Tree:
         # удаляем узел с двумя детьми
         next_node = current_node.right
 
-        # если у правого ребенка удаляемого узла нет левого ребенка
+        # если в правом поддереве удаляемого узла нет левого ребенка
         if not next_node.left:
             next_node.left = current_node.left
             current_node.right = None
@@ -293,7 +202,7 @@ class Tree:
 
                 return True
 
-            if current_node < parent_node:
+            if self.compare(current_node.data, parent_node.data):
                 parent_node.left = next_node
             else:
                 parent_node.right = next_node
@@ -302,6 +211,7 @@ class Tree:
 
             return True
 
+        # если в правом поддереве удаляемого узла есть левый ребенок
         previous_next = next_node
         next_node = next_node.left
 
@@ -315,7 +225,7 @@ class Tree:
             previous_next.left = None
 
         if parent_node:
-            if current_node < parent_node:
+            if self.compare(current_node.data, parent_node.data):
                 parent_node.left = next_node
             else:
                 parent_node.right = next_node
@@ -325,3 +235,24 @@ class Tree:
 
         next_node.left = current_node.left
         next_node.right = current_node.right
+
+        return True
+
+    def compare(self, node_1, node_2) -> bool:
+        if self.__function:
+            if self.__function(node_1) < self.__function(node_2):
+                return True
+            else:
+                return False
+        else:
+            if node_1 < node_2:
+                return True
+            else:
+                return False
+
+    def __contains__(self, item):
+        try:
+            if self.find(item)[0]:
+                return True
+        except TypeError:
+            return False
