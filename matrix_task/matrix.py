@@ -7,19 +7,20 @@ class Matrix:
             raise ValueError(f'Invalid number of arguments = {len(args)}')
 
         if len(args) == 2:
-            rows = args[0]
-            columns = args[1]
-            sizes = rows, columns
+            rows_count = args[0]
+            columns_count = args[1]
+            sizes = rows_count, columns_count
 
             if all(isinstance(size, int) for size in sizes):
                 if all(size > 0 for size in sizes):
-                    self.__rows = [Vector(columns)] * rows
+                    self.__rows = [Vector(columns_count)] * rows_count
 
                     return
 
-                raise ValueError(f'Sizes of the matrix must be > 0, not {rows} or {columns}')
+                raise ValueError(f'Sizes of the matrix must be > 0, not {rows_count} or {columns_count}')
 
-            raise TypeError(f'Incorrect type of arguments "{type(rows).__name__}" or "{type(columns).__name__}"')
+            raise TypeError(
+                f'Incorrect type of arguments "{type(rows_count).__name__}" or "{type(columns_count).__name__}"')
 
         if len(args) == 1:
             if isinstance(args[0], Matrix):
@@ -29,9 +30,8 @@ class Matrix:
                 return
 
             if isinstance(args[0], list):
-                vectors_list = args[0]
-
-                if all(isinstance(vector, Vector) for vector in vectors_list):
+                if all(isinstance(vector, Vector) for vector in args[0]):
+                    vectors_list = args[0]
                     self.__rows = []
                     max_size = max(vector.size for vector in vectors_list)
 
@@ -40,13 +40,15 @@ class Matrix:
 
                     return
 
-                if all(isinstance(vector, list) for vector in vectors_list):
-                    if all(isinstance(item, int | float) for vector in vectors_list for item in vector):
-                        self.__rows = []
-                        max_size = len(max(vectors_list, key=len))
+                if all(isinstance(vector, list) for vector in args[0]):
+                    items_list = args[0]
 
-                        for i in range(len(vectors_list)):
-                            self.__rows.append(Vector(max_size, vectors_list[i]))
+                    if all(isinstance(item, int | float) for _ in items_list for item in _):
+                        self.__rows = []
+                        max_size = len(max(items_list, key=len))
+
+                        for i in range(len(items_list)):
+                            self.__rows.append(Vector(max_size, items_list[i]))
 
                         return
 
@@ -59,11 +61,11 @@ class Matrix:
         raise ValueError('Invalid number of arguments 0')
 
     @property
-    def rows(self):
+    def rows_count(self):
         return len(self.__rows)
 
     @property
-    def columns(self):
+    def columns_count(self):
         return self.__rows[0].size
 
     def __hash__(self):
@@ -71,10 +73,10 @@ class Matrix:
 
     def __eq__(self, other):
         if not isinstance(other, Matrix):
-            raise TypeError(f'Incorrect type of arguments "{type(other).__name__}"')
+            return False
 
-        if self.rows != other.rows or self.columns != other.columns:
-            return 'Class instances have different sizes'
+        if self.rows_count != other.rows_count or self.columns_count != other.columns_count:
+            return False
 
         for item_1, item_2 in zip(self.__rows, other.__rows):
             if item_1 != item_2:
@@ -101,29 +103,29 @@ class Matrix:
         if not isinstance(item, int):
             raise TypeError(f'Index must be int, not {type(item).__name__}')
 
-        if item < 0 or item >= self.rows:
-            raise IndexError(f'Incorrect index value, must be in ({0, self.size - 1})')
+        if item < 0 or item >= self.rows_count:
+            raise IndexError(f'Incorrect index value, must be in {0, self.rows_count - 1}')
 
         return Vector(self.__rows[item])
 
     def __setitem__(self, key, value):
         if not isinstance(key, int):
-            raise TypeError(f'Index must be int, not {type(item).__name__}')
+            raise TypeError(f'Index must be int, not {type(key).__name__}')
 
-        if key < 0 or key >= self.rows:
-            raise IndexError(f'Incorrect index value, must be in ({0, self.size[1] - 1})')
+        if key < 0 or key >= self.rows_count:
+            raise IndexError(f'Incorrect index value, must be in {0, self.rows_count - 1}')
 
         if isinstance(value, list):
-            if len(value) != self.columns:
-                raise ValueError(f'Incorrect list size = {len(value)}, must be {self.columns}')
+            if len(value) != self.columns_count:
+                raise ValueError(f'Incorrect vector size = {len(value)}, must be {self.columns_count}')
 
             self.__rows[key] = Vector(value)
 
             return
 
         if isinstance(value, Vector):
-            if value.size != self.columns:
-                raise ValueError(f'Incorrect list size = {value.size}, must be {self.columns}')
+            if value.size != self.columns_count:
+                raise ValueError(f'Incorrect vector size = {value.size}, must be {self.columns_count}')
 
             self.__rows[key] = Vector(value)
 
@@ -146,53 +148,48 @@ class Matrix:
         if not isinstance(other, int | float):
             raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
 
-        for i in range(self.rows):
+        for i in range(self.rows_count):
             self.__rows[i] *= other
 
         return self
 
-    def __iadd__(self, other):
+    def check_correct_type_and_sizes(self, other):
         if not isinstance(other, Matrix):
             raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
 
-        if self.rows != other.rows or self.columns != other.columns:
-            return 'Class instances have different sizes'
+        if self.rows_count != other.rows_count or self.columns_count != other.columns_count:
+            raise ValueError(
+                f'Incorrect matrix size: ({self.rows_count}x{self.columns_count}), '
+                f'({other.rows_count}x{other.columns_count})')
 
-        for i in range(self.rows):
+        return
+
+    def __iadd__(self, other):
+        self.check_correct_type_and_sizes(other)
+
+        for i in range(self.rows_count):
             self.__rows[i] += other.__rows[i]
 
         return self
 
     def __isub__(self, other):
-        if not isinstance(other, Matrix):
-            raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
+        self.check_correct_type_and_sizes(other)
 
-        if self.rows != other.rows or self.columns != other.columns:
-            return 'Class instances have different sizes'
-
-        for i in range(self.rows):
+        for i in range(self.rows_count):
             self.__rows[i] -= other.__rows[i]
 
         return self
 
     def __add__(self, other):
-        if not isinstance(other, Matrix):
-            raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
+        self.check_correct_type_and_sizes(other)
 
-        if self.rows != other.rows or self.columns != other.columns:
-            return 'Class instances have different sizes'
+        matrix_sum = Matrix(self)
+        matrix_sum += other
 
-        amount = Matrix(self)
-        amount += other
-
-        return amount
+        return matrix_sum
 
     def __sub__(self, other):
-        if not isinstance(other, Matrix):
-            raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
-
-        if self.rows != other.rows or self.columns != other.columns:
-            return 'Class instances have different sizes'
+        self.check_correct_type_and_sizes(other)
 
         difference = Matrix(self)
         difference -= other
@@ -201,19 +198,19 @@ class Matrix:
 
     def __matmul__(self, other):
         if isinstance(other, Matrix):
-            if self.rows != other.columns or self.columns != other.rows:
-                return f'Сan not multiply matrix size ({self.rows}x{self.columns}) ' \
-                       f'by matrix size ({other.rows}x{other.columns})'
+            if self.columns_count != other.rows_count:
+                return f'Сan not multiply matrix size ({self.rows_count}x{self.columns_count}) ' \
+                       f'by matrix size ({other.rows_count}x{other.columns_count})'
 
             product = []
 
-            for i in range(self.rows):
+            for i in range(self.rows_count):
                 row = []
 
-                for j in range(self.rows):
+                for j in range(other.columns_count):
                     item = 0
 
-                    for k in range(self.columns):
+                    for k in range(self.columns_count):
                         item += self.__rows[i][k] * other.__rows[k][j]
 
                     row.append(item)
@@ -223,12 +220,13 @@ class Matrix:
             return Matrix(product)
 
         if isinstance(other, Vector):
-            if self.columns != other.size:
-                return f'Сan not multiply matrix size ({self.rows},{self.columns}) by vector size ({other.size})'
+            if self.columns_count != other.size:
+                return f'Сan not multiply matrix size ({self.rows_count},{self.columns_count}) ' \
+                       f'by vector size ({other.size})'
 
             vector = []
 
-            for i in range(self.rows):
+            for i in range(self.rows_count):
                 item = 0
 
                 for j in range(other.size):
@@ -242,34 +240,34 @@ class Matrix:
 
     def get_column(self, index):
         if not isinstance(index, int):
-            raise TypeError(f'Incorrect type of argument "{type(item).__name__}"')
+            raise TypeError(f'Incorrect type of argument "{type(index).__name__}"')
 
-        if index < 0 or index >= self.rows:
-            raise IndexError('Index column out of range')
+        if index < 0 or index >= self.columns_count:
+            raise IndexError(f'Index column {index} out of range {0, self.columns_count - 1})')
 
         return Vector([row[index] for row in self.__rows])
 
     def transpose(self):
-        for i in range(self.rows):
-            for j in range(i + 1, self.columns):
+        for i in range(self.rows_count):
+            for j in range(i + 1, self.columns_count):
                 self.__rows[i][j], self.__rows[j][i] = self.__rows[j][i], self.__rows[i][j]
 
     def __get_minor(self, i):
         return Matrix([list(vector)[:i] + list(vector)[i + 1:] for vector in self.__rows[1:]])
 
     def get_determinant(self):
-        if self.rows != self.columns:
-            raise ValueError(f'Can not calculate determinant of matrix sizes ({self.rows}x{self.columns})')
+        if self.rows_count != self.columns_count:
+            raise ValueError(f'Can not calculate determinant of matrix sizes ({self.rows_count}x{self.columns_count})')
 
-        if self.rows == 1:
+        if self.rows_count == 1:
             return self.__rows[0][0]
 
-        if self.rows == 2:
+        if self.rows_count == 2:
             return self.__rows[0][0] * self.__rows[1][1] - self.__rows[0][1] * self.__rows[1][0]
 
         determinant = 0
 
-        for i in range(self.rows):
+        for i in range(self.rows_count):
             determinant += (-1) ** i * self.__rows[0][i] * self.__get_minor(i).get_determinant()
 
         return determinant

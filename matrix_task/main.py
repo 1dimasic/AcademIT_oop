@@ -5,7 +5,7 @@ matrix_1 = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
 
 # проверка __getitem__, __setitem__
 print(f'Первая строка матрицы {matrix_1[0]}')
-matrix_1[1] = Vector(3, [-1, -1])
+matrix_1[0] = Vector(3, [-1, -1])
 print(f'Матрица после изменения второй строки {matrix_1}')
 
 # проверка __mul__, __rmul__, _imul__
@@ -29,7 +29,10 @@ matrix_result = matrix_1 + matrix_2
 print(f'Результат сложения двух матриц равен {matrix_result}')
 matrix_result = matrix_1 - matrix_2
 print(f'Результат вычитания двух матриц равен {matrix_result}')
-matrix_result = matrix_1 @ matrix_2
+
+matrix_3 = Matrix([[1, 2], [2, 1], [1, 3]])
+matrix_4 = Matrix([[1, 0, 1, 0], [2, 0, 2, 0]])
+matrix_result = matrix_3 @ matrix_4
 print(f'Результат умножения двух матриц равен {matrix_result}')
 vector_1 = Vector([3, 4, 5])
 vector_result = matrix_1 @ vector_1
