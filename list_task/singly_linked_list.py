@@ -10,34 +10,32 @@ class SinglyLinkedList:
         return self.__count
 
     def get_first(self):
-        if not self.__count:
-            raise ValueError('List is empty')
+        if self.__count == 0:
+            raise IndexError('List is empty')
 
         return self.__head.data
 
-    def add(self, data):
+    def add_first(self, data):
         self.__head = ListItem(data, self.__head)
         self.__count += 1
 
     def delete_first(self):
-        try:
-            data = self.__head.data
-        except AttributeError:
-            raise AttributeError('List is empty')
+        if self.__count == 0:
+            raise IndexError('List is empty')
 
+        data = self.__head.data
         self.__head = self.__head.next
         self.__count -= 1
 
         return data
 
     def reverse(self):
+        if self.__count <= 1:
+            return
+
         previous_item = None
         current_item = self.__head
-
-        try:
-            next_item = current_item.next
-        except AttributeError:
-            raise AttributeError('List is empty')
+        next_item = current_item.next
 
         while current_item:
             current_item.next = previous_item
@@ -54,28 +52,26 @@ class SinglyLinkedList:
         other = SinglyLinkedList()
 
         while current_item:
-            other.add(current_item.data)
+            other.add_first(current_item.data)
             current_item = current_item.next
 
         return other
 
     def insert(self, index, data):
         if not isinstance(index, int):
-            raise TypeError(f'Incorrect type of argument "{type(index).__name__}"')
+            raise TypeError(f'Incorrect type of argument "index" "{type(index).__name__}", must be int')
 
         if index < 0 or index > self.__count:
             raise IndexError(f'Incorrect index value, must be in ({0, self.__count})')
 
         if index == 0:
-            self.add(data)
+            self.add_first(data)
 
             return
 
-        new_item = ListItem(data)
-        previous_item, current_item = self.__get_two_neighboring_item_by_index(index)
-
-        previous_item.next = new_item
-        new_item.next = current_item
+        previous_item = self.__get_item(index - 1)
+        current_item = previous_item.next
+        previous_item.next = ListItem(data, current_item)
         self.__count += 1
 
     @staticmethod
@@ -84,23 +80,7 @@ class SinglyLinkedList:
             raise TypeError(f'Incorrect type of argument "{type(key).__name__}"')
 
         if key < 0 or key >= size:
-            raise IndexError(f'Incorrect index value, must be in ({0, size - 1}), not {key}')
-
-    def __get_two_neighboring_item_by_index(self, index):
-        current_item = self.__head
-        previous_item = None
-        current_index = 0
-
-        while current_item:
-            if current_index != index:
-                previous_item = current_item
-                current_item = current_item.next
-                current_index += 1
-                continue
-
-            break
-
-        return previous_item, current_item
+            raise IndexError(f'Incorrect index value, must be in {0, size - 1}, not {key}')
 
     def __getitem__(self, item):
         self.__check_key(item, self.__count)
@@ -120,26 +100,17 @@ class SinglyLinkedList:
     def __setitem__(self, key, data):
         self.__check_key(key, self.__count)
 
-        current_item = self.__head
-        current_index = 0
-
-        while current_item:
-            if current_index == key:
-                current_item.data = data
-                return
-
-            current_index += 1
-            current_item = current_item.next
+        current_item = self.__get_item(key)
+        current_item.data = data
 
     def __delitem__(self, key):
         self.__check_key(key, self.__count)
 
         if key == 0:
-            self.delete()
-            return
+            return self.delete_first()
 
-        previous_item, current_item = self.__get_two_neighboring_item_by_index(key)
-
+        previous_item = self.__get_item(key - 1)
+        current_item = previous_item.next
         previous_item.next = current_item.next
         current_item.next = None
         self.__count -= 1
@@ -171,13 +142,26 @@ class SinglyLinkedList:
         return False
 
     def __repr__(self):
-        current_item = self.__head
-        list_string = ''
+        singly_linked_list = []
 
-        while current_item and current_item.next:
-            list_string += str(current_item.data) + ', '
+        if self.__count == 0:
+            return str(singly_linked_list)
+
+        current_item = self.__head
+
+        while current_item:
+            singly_linked_list.append(current_item.data)
             current_item = current_item.next
 
-        list_string = '[' + list_string + str(current_item.data) + ']'
+        return str(singly_linked_list)
 
-        return list_string
+    def __get_item(self, index):
+        current_item = self.__head
+        current_index = 0
+
+        while current_item:
+            if current_index == index:
+                return current_item
+
+            current_item = current_item.next
+            current_index += 1

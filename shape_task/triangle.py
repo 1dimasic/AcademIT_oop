@@ -9,8 +9,9 @@ class Triangle(Shape):
         for i in range(len(coordinates)):
             if not isinstance(coordinates[i], int | float):
                 coordinate_name = 'x' if i % 2 == 0 else 'y'
+                coordinate_index = i // 2 + 1
 
-                raise TypeError(f'Координаты должны быть числом. Сейчас {coordinate_name}{int(i / 2 + 1)} '
+                raise TypeError(f'Координаты должны быть числом. Сейчас {coordinate_name}{coordinate_index} '
                                 f'{type(coordinates[i]).__name__}')
 
         self.__x1 = x1

@@ -18,13 +18,15 @@ class Vector:
                 return
 
             if isinstance(args[0], list):
-                if len(args[0]) == 0:
-                    raise ValueError(f'Size of the vector must be > 0, not {len(args[0])}')
+                components = args[0]
 
-                if not all(isinstance(component, int | float) for component in args[0]):
+                if len(components) == 0:
+                    raise ValueError(f'Size of the vector must be > 0, not {len(components)}')
+
+                if not all(isinstance(component, int | float) for component in components):
                     raise ValueError(f'Vector components must be numbers')
 
-                self.__components = args[0][:]
+                self.__components = components[:]
 
                 return
 
@@ -34,21 +36,24 @@ class Vector:
 
                 return
 
+            raise TypeError(f'Incorrect type {type(args[0])}, need int, list or class Vector')
+
         size = args[0]
+        components = args[1]
 
         if not isinstance(size, int):
-            raise TypeError(f'Incorrect type of arguments "{type(size).__name__}"')
+            raise TypeError(f'Incorrect type of arguments "{type(size).__name__}", need int')
 
         if size <= 0:
             raise ValueError(f'Size of the vector must be > 0, not {size}')
 
-        if not isinstance(args[1], list):
-            raise TypeError(f'Incorrect type of arguments "{type(size).__name__}"')
+        if not isinstance(components, list):
+            raise TypeError(f'Incorrect type of arguments "{type(size).__name__}", need list')
 
-        if not all(isinstance(component, int | float) for component in args[1]):
+        if not all(isinstance(component, int | float) for component in components):
             raise ValueError(f'Vector components must be numbers')
 
-        self.__components = args[1][:]
+        self.__components = components[:]
 
         if size > len(self.__components):
             self.__components.extend([0] * (size - len(self.__components)))
@@ -74,7 +79,7 @@ class Vector:
 
     def __iadd__(self, other):
         if not isinstance(other, Vector):
-            raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
+            raise TypeError(f'Incorrect type of argument "{type(other).__name__}", need class Vector')
 
         self.__increase_size(other)
 
@@ -85,7 +90,7 @@ class Vector:
 
     def __isub__(self, other):
         if not isinstance(other, Vector):
-            raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
+            raise TypeError(f'Incorrect type of argument "{type(other).__name__}", need class Vector')
 
         self.__increase_size(other)
 
@@ -96,7 +101,7 @@ class Vector:
 
     def __imul__(self, other):
         if not isinstance(other, int | float):
-            raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
+            raise TypeError(f'Incorrect type of argument "{type(other).__name__}", need int or float')
 
         for i in range(self.size):
             self.__components[i] *= other
@@ -105,7 +110,7 @@ class Vector:
 
     def __add__(self, other):
         if not isinstance(other, Vector):
-            raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
+            raise TypeError(f'Incorrect type of argument "{type(other).__name__}", need class Vector')
 
         vectors_sum = Vector(self)
         vectors_sum += other
@@ -114,7 +119,7 @@ class Vector:
 
     def __sub__(self, other):
         if not isinstance(other, Vector):
-            raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
+            raise TypeError(f'Incorrect type of argument "{type(other).__name__}", need class Vector')
 
         difference = Vector(self)
         difference -= other
@@ -123,7 +128,7 @@ class Vector:
 
     def __mul__(self, other):
         if not isinstance(other, int | float):
-            raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
+            raise TypeError(f'Incorrect type of argument "{type(other).__name__}", need int or float')
 
         product = Vector(self)
         product *= other
@@ -143,13 +148,13 @@ class Vector:
 
     def __setitem__(self, key, value):
         if not isinstance(key, int):
-            raise TypeError(f'Index must be int, not {type(item).__name__}')
+            raise TypeError(f'Index must be int, not {type(key).__name__}')
 
         if key < 0 or key >= self.size:
             raise IndexError(f'Incorrect index value, must be in ({0, self.size - 1})')
 
         if not isinstance(value, int | float):
-            raise TypeError('Vector component must be a number')
+            raise TypeError(f'Vector component must be a number, not {type(value)}')
 
         self.__components[key] = value
 
@@ -164,7 +169,7 @@ class Vector:
 
     def get_scalar_product(self, other):
         if not isinstance(other, Vector):
-            raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
+            raise TypeError(f'Incorrect type of argument "{type(other).__name__}", need class Vector')
 
         product = 0
 

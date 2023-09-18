@@ -1,25 +1,26 @@
 from collections.abc import Collection
+from typing import Any
 
 
 class HashTable(Collection):
     def __init__(self, capacity=10):
         if not isinstance(capacity, int):
-            raise TypeError(f'can not multiply sequence by non-int of type {type(capacity)}')
+            raise TypeError(f'Capacity must have type int, not {type(capacity)}')
 
         if capacity <= 0:
-            raise IndexError('list assignment index out of range')
+            raise ValueError(f'Capacity must be > 0, not {capacity}')
 
-        self.__table = [None] * capacity
+        self.__table: list[Any] = [None] * capacity
         self.__size = 0
 
     def __contains__(self, value):
-        for _ in self.__table:
-            if _ is None:
-                continue
+        index = self.__get_index(value)
 
-            for item in _:
-                if item == value:
-                    return True
+        if not self.__table[index]:
+            return False
+
+        if value in self.__table[index]:
+            return True
 
         return False
 
@@ -27,11 +28,11 @@ class HashTable(Collection):
         return self.__size
 
     def __iter__(self):
-        for _ in self.__table:
-            if _ is None:
+        for items_list in self.__table:
+            if items_list is None:
                 continue
 
-            for item in _:
+            for item in items_list:
                 yield item
 
     def __get_index(self, value):
@@ -52,21 +53,14 @@ class HashTable(Collection):
 
         if self.__table[index] is None:
             return False
-        else:
-            try:
-                self.__table[index].remove(value)
-            except ValueError:
-                pass
-            finally:
-                self.__size -= 1
-                return True
+
+        try:
+            self.__table[index].remove(value)
+            self.__size -= 1
+        except ValueError:
+            return False
+
+        return True
 
     def __repr__(self):
-        hash_table_list = []
-
-        iterator = self.__iter__()
-
-        for items in iterator:
-            hash_table_list.append(items)
-
-        return str(hash_table_list)
+        return str(list(self))

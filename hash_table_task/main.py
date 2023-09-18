@@ -1,6 +1,6 @@
 from hash_table_task.hash_table import HashTable
 
-hash_table = HashTable(3)
+hash_table = HashTable(8)
 hash_table.add(-2)
 hash_table.add('5')
 hash_table.add('abc')
@@ -9,6 +9,7 @@ hash_table.add(-99)
 hash_table.add(16)
 hash_table.add('16')
 
+print(hash_table)
 hash_table.delete(100)
 print(hash_table)
 hash_table.delete(-100)

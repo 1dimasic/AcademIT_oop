@@ -1,3 +1,4 @@
+# noinspection PyShadowingBuiltins
 class ListItem:
     def __init__(self, data, next=None):
         self.__data = data
