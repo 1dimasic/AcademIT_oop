@@ -3,13 +3,20 @@ from tkinter import *
 from tkinter.messagebox import *
 from tkinter import ttk
 
+from minesweeper_task.logic.model import Model
+from minesweeper_task.logic.field import Field
+
 
 class View:
     def __init__(self):
         self.__root = Tk()
+        self.__controller = None
         self.__size = 9
         self.__mines_count = 10
         self.__field_frame = None
+
+    def set_controller(self, controller):
+        self.__controller = controller
 
     def start(self):
         self.__root.geometry('300x300+400+100')
@@ -22,7 +29,7 @@ class View:
         top = Menu(self.__root, tearoff=0)
         self.__root.config(menu=top)
         top.add_command(label='New game', command=self.__play)
-        top.add_command(label='Settings', command=self.__game_settings)
+        top.add_command(label='Settings', command=self.__show_game_settings)
         top.add_command(label='High scores', command=self.show_high_scores)
         top.add_command(label='About', command=self.show_about)
         top.add_command(label='Exit', command=sys.exit)
@@ -45,7 +52,7 @@ class View:
         self.__mines_count = int(mines_count.get())
         game_settings.destroy()
 
-    def __game_settings(self):
+    def __show_game_settings(self):
         game_settings = Toplevel()
         game_settings.title('Game settings')
         game_settings.geometry('300x120+500+150')
@@ -71,28 +78,32 @@ class View:
         button.pack(anchor=SE, padx=5, pady=5)
         frame_3.pack(side=TOP, fill=X)
 
+    def f(self, button):
+        button.destroy()
+
     def __play(self):
         width_button = 30
+        size = str(width_button * self.__size)
+        fields = []
 
         for widget in self.__field_frame.winfo_children():
             widget.destroy()
 
-        for x in range(self.__size):
-            self.__field_frame.rowconfigure(index=x, weight=1)
+        for i in range(self.__size):
+            self.__field_frame.rowconfigure(index=i, weight=1)
+            self.__field_frame.columnconfigure(index=i, weight=1)
 
-        for y in range(self.__size):
-            self.__field_frame.columnconfigure(index=y, weight=1)
+        for i in range(self.__size):
+            row = []
 
-        for x in range(self.__size):
-            for y in range(self.__size):
-                field = Button(self.__field_frame)
-                field.grid(row=x, column=y, sticky=NSEW)
+            for j in range(self.__size):
+                button = Button(self.__field_frame, padx=width_button, pady=width_button)
+                button.bind('<Button-1>', lambda x=i, y=j: self.f(button))
+                button.grid(row=i, column=j, sticky=NSEW)
+                row.append(Field(button))
 
-        size = str(width_button * self.__size) + 'x' + str(width_button * self.__size) + '+400+100'
-        self.__root.geometry(size)
+            fields.append(row)
 
+        self.__root.geometry(size + 'x' + size + '+400+100')
+        self.__root.resizable(False, False)
         self.__field_frame.pack(expand=True, fill=BOTH)
-
-
-view = View()
-view.start()
