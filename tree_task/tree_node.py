@@ -10,6 +10,9 @@ class TreeNode:
 
     @left.setter
     def left(self, other):
+        if not isinstance(other, TreeNode | None):
+            raise TypeError(f'Type of argument must be TreeNode class, not {type(other).__name__}')
+
         self.__left = other
 
     @property
@@ -18,11 +21,11 @@ class TreeNode:
 
     @right.setter
     def right(self, other):
+        if not isinstance(other, TreeNode | None):
+            raise TypeError(f'Type of argument must be TreeNode class, not {type(other).__name__}')
+
         self.__right = other
 
     @property
     def data(self):
         return self.__data
-
-    def __repr__(self):
-        return str(self.__data)

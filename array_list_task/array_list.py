@@ -4,97 +4,94 @@ from collections.abc import MutableSequence
 class ArrayList(MutableSequence):
     def __init__(self, capacity=10):
         if not isinstance(capacity, int):
-            raise TypeError(f'can not multiply sequence by non-int of type {type(capacity)}')
+            raise TypeError(f'Type of capacity must be int, not {type(capacity).__name__}')
 
-        if capacity <= 0:
-            raise IndexError('list assignment index out of range')
+        if capacity < 0:
+            raise ValueError(f'Capacity must be >=0, not {capacity}')
 
         self.__items = [None] * capacity
         self.__size = 0
 
-    def __getitem__(self, item):
-        if not isinstance(item, int):
-            raise TypeError(f'Incorrect type of argument "{type(item).__name__}"')
+    def __check_index_type_and_value(self, index):
+        if not isinstance(index, int):
+            raise TypeError(f'Incorrect type of argument "{type(index).__name__}"')
 
-        if item < 0 or item >= self.__size:
-            raise IndexError(f'Incorrect index value, must be in ({0, self.__size - 1}), not {item}')
+        if index < 0 or index >= self.__size:
+            raise IndexError(f'Incorrect index value, must be in {0, self.__size - 1}, not {index}')
 
-        return self.__items[item]
+    def __getitem__(self, index):
+        if isinstance(index, slice):
+            slice_range = index.indices(self.__size)
+            items = []
 
-    def __setitem__(self, key, item):
-        if not isinstance(key, int):
-            raise TypeError(f'Incorrect type of argument "{type(key).__name__}"')
+            for i in range(*slice_range):
+                items.append(self.__items[i])
 
-        if key < 0 or key >= self.__size:
-            raise IndexError(f'Incorrect index, must be in ({0, self.__size - 1}), not {key}')
+            return items
 
-        self.__items[key] = item
+        self.__check_index_type_and_value(index)
 
-    def __delitem__(self, key):
-        if not isinstance(key, int):
-            raise TypeError(f'Incorrect type of argument "{type(key).__name__}"')
+        return self.__items[index]
 
-        if key < 0 or key >= self.__size:
-            raise IndexError(f'Incorrect index, must be in ({0, self.__size - 1}), not {key}')
+    def __setitem__(self, index, value):
+        self.__check_index_type_and_value(index)
 
-        for i in range(key, self.__size - 1):
+        self.__items[index] = value
+
+    def __delitem__(self, index):
+        self.__check_index_type_and_value(index)
+
+        for i in range(index, self.__size - 1):
             self.__items[i] = self.__items[i + 1]
 
         self.__items[self.__size - 1] = None
         self.__size -= 1
 
-    def ensure_capacity(self, size):
-        if len(self.__items) >= size:
+    def ensure_capacity(self, capacity):
+        if len(self.__items) >= capacity:
             return
 
-        self.__items = self.__items + [None] * (size - len(self.__items))
+        self.__items += [None] * (capacity - len(self.__items))
 
     def trim_to_size(self):
         if self.__size < len(self.__items):
             self.__items = self.__items[:self.__size]
 
-    def increase_capacity(self):
-        self.__items = self.__items + [None] * len(self.__items)
+    def __increase_capacity(self):
+        self.__items += [None] * (len(self.__items) + 1)
 
     def __len__(self):
         return self.__size
 
     def __iter__(self):
         for item in self.__items:
+            if item is None:
+                continue
+
             yield item
 
-    def insert(self, key, item):
-        if not isinstance(key, int):
-            raise TypeError(f"Incorrect type of argument '{type(key).__name__}', not 'int'")
-
-        if key < 0 or key > self.__size:
-            raise IndexError(f'Incorrect index, must be in ({0, self.__size})')
+    def insert(self, index, value):
+        self.__check_index_type_and_value(index)
 
         if self.__size >= len(self.__items):
-            self.increase_capacity()
+            self.__increase_capacity()
 
-        if key == self.__size:
-            self.__items[key] = item
-            self.__size += 1
-
-            return
-
-        for i in range(self.__size, key - 1, -1):
+        for i in range(self.__size, index, -1):
             self.__items[i] = self.__items[i - 1]
 
-        self.__items[key] = item
+        self.__items[index] = value
         self.__size += 1
 
-    def append(self, item):
+    def append(self, value):
         if self.__size >= len(self.__items):
-            self.increase_capacity()
+            self.__increase_capacity()
 
-        self.__items[self.__size] = item
+        self.__items[self.__size] = value
         self.__size += 1
 
     def extend(self, other):
         if not iter(other):
-            raise TypeError(f'{type(other)} object is not iterable')
+            raise TypeError(f'{type(other).__name__} object is not iterable')
 
         self.ensure_capacity(self.__size + len(other))
 
@@ -106,7 +103,7 @@ class ArrayList(MutableSequence):
     def pop(self, index=None):
         if index is None:
             if self.__size == 0:
-                raise IndexError('pop from empty list')
+                raise IndexError('Pop from empty list')
 
             item = self.__items[self.__size - 1]
             self.__items[self.__size - 1] = None
@@ -114,11 +111,7 @@ class ArrayList(MutableSequence):
 
             return item
 
-        if not isinstance(index, int):
-            raise TypeError(f"Incorrect type of argument '{type(index).__name__}', not 'int'")
-
-        if index < 0 or index >= self.__size:
-            raise IndexError(f'Incorrect index, must be in {0, self.__size - 1}, not {index}')
+        self.__check_index_type_and_value(index)
 
         item = self.__items[index]
 
@@ -130,77 +123,61 @@ class ArrayList(MutableSequence):
 
         return item
 
-    def remove(self, item):
+    def remove(self, value):
         for i in range(self.__size):
-            if self.__items[i] == item:
+            if self.__items[i] == value:
                 self.pop(i)
 
                 return
 
-        raise ValueError(f'No item in list')
+        raise ValueError('No value in list')
 
-    def __iadd__(self, other):
-        if not isinstance(other, ArrayList):
-            raise TypeError(f'Incorrect type of argument "{type(other).__name__}", need {self.__class__.__name__}')
+    def __iadd__(self, values):
+        if not isinstance(values, ArrayList):
+            raise TypeError(f'Incorrect type of argument "{type(values).__name__}", need {self.__class__.__name__}')
 
-        self.extend(other)
+        self.extend(list(values))
 
         return self
 
-    def __contains__(self, item):
+    def __contains__(self, value):
         for i in range(self.__size):
-            if self.__items[i] == item:
+            if self.__items[i] == value:
                 return True
 
         return False
 
     def __reversed__(self):
         for i in range(self.__size - 1, -1, -1):
-            yield self.__items[i]
-
-    def __check_searching_range(self, *searching_range):
-        for point in searching_range:
-            if not point:
+            if self.__items[i] is None:
                 continue
 
-            if not isinstance(point, int):
-                raise TypeError(f'Incorrect type of argument {type(point).__name__}')
+            yield self.__items[i]
 
-            if not 0 <= point < self.__size:
-                raise IndexError(f'Incorrect index, must be in ({0, self.__size - 1}), not {point}')
-
-    def index(self, item, *searching_range):
-        check = True
-
-        try:
-            start = searching_range[0]
-        except IndexError:
+    def index(self, item, start=None, stop=None):
+        if start is None and stop is None:
             start = 0
-            check = not check
+            stop = self.__size
 
-        try:
-            stop = searching_range[1]
-        except IndexError:
-            stop = self.__size - 1
-            check = not check
+        elif start is not None and stop is None:
+            stop = self.__size
 
-        if not check:
-            self.__check_searching_range(start, stop)
+        else:
+            if start < 0 and stop < 0:
+                start += self.__size
+                stop += self.__size
 
-            if start > stop:
-                start, stop = stop, start
-
-        for i in range(start, stop + 1):
+        for i in range(start, stop):
             if self.__items[i] == item:
                 return i
 
-        raise ValueError('item not found')
+        raise ValueError('Value not found')
 
-    def count(self, item=None):
+    def count(self, value):
         count = 0
 
         for i in range(self.__size):
-            if self.__items[i] == item:
+            if self.__items[i] == value:
                 count += 1
 
         return count
@@ -210,11 +187,15 @@ class ArrayList(MutableSequence):
             self.__items[i], self.__items[self.__size - 1 - i] = self.__items[self.__size - 1 - i], self.__items[i]
 
     def __repr__(self):
-        string = '['
+        array_list = []
 
-        for i in range(len(self.__items) - 1):
-            string += str(self.__items[i]) + ', '
+        if len(self.__items) == 0:
+            return str(array_list)
 
-        string += str(self.__items[len(self.__items) - 1]) + ']'
+        for i in range(self.__size):
+            if self.__items[i] is None:
+                continue
 
-        return string
+            array_list.append(self.__items[i])
+
+        return str(array_list)

@@ -3,18 +3,30 @@ from collections import deque
 
 
 class Tree:
-    def __init__(self, function=None):
+    def __init__(self, key_function=None):
         self.__root = None
         self.__count = 0
-        self.__function = function
+        self.__key_function = key_function
 
     def __len__(self):
         return self.__count
 
+    def __is__equals(self, data_1, data_2):
+        if self.__key_function:
+            return self.__key_function(data_1) == self.__key_function(data_2)
+
+        return data_1 == data_2
+
+    def __is_less_than(self, data_1, data_2) -> bool:
+        if self.__key_function:
+            return self.__key_function(data_1) < self.__key_function(data_2)
+
+        return data_1 < data_2
+
     def add(self, data):
         node = TreeNode(data)
 
-        if not self.__count:
+        if self.__count == 0:
             self.__root = node
             self.__count += 1
             return
@@ -22,7 +34,7 @@ class Tree:
         current_node = self.__root
 
         while True:
-            if self.compare(node.data, current_node.data):
+            if self.__is_less_than(node.data, current_node.data):
                 if current_node.left:
                     current_node = current_node.left
                     continue
@@ -39,33 +51,25 @@ class Tree:
             self.__count += 1
             return
 
-    def visit_in_depth_with_recursion(self, node=None, function=None):
+    def visit_in_depth_with_recursion(self, function):
         if self.__count == 0:
             return
 
-        if not node:
-            node = self.__root
+        current_node = self.__root
 
-        if not isinstance(node, TreeNode):
-            raise TypeError(f'Incorrect type of arguments "{type(node).__name__}"')
+        self.__visit_in_depth_with_recursion(current_node, function)
 
-        try:
-            function(node)
-        except TypeError:
-            pass
-
+    def __visit_in_depth_with_recursion(self, node, function):
+        function(node.data)
         children = node.left, node.right
-
-        if all(not child for child in children):
-            return
 
         for child in children:
             if not child:
                 continue
 
-            self.visit_in_depth_with_recursion(child)
+            self.__visit_in_depth_with_recursion(child, function)
 
-    def visit_in_depth(self, function=None):
+    def visit_in_depth(self, function):
         if self.__count == 0:
             return
 
@@ -74,12 +78,7 @@ class Tree:
 
         while tree_deque:
             node = tree_deque.popleft()
-
-            try:
-                function(node)
-            except TypeError:
-                pass
-
+            function(node.data)
             children = node.right, node.left
 
             for child in children:
@@ -88,7 +87,7 @@ class Tree:
 
                 tree_deque.appendleft(child)
 
-    def visit_in_width(self, function=None):
+    def visit_in_width(self, function):
         if self.__count == 0:
             return
 
@@ -97,12 +96,7 @@ class Tree:
 
         while tree_deque:
             node = tree_deque.pop()
-
-            try:
-                function(node)
-            except TypeError:
-                pass
-
+            function(node.data)
             children = node.left, node.right
 
             for child in children:
@@ -111,73 +105,65 @@ class Tree:
 
                 tree_deque.appendleft(child)
 
-    def find(self, data):
+    def __find(self, data):
+        if self.__count == 0:
+            return None, None
+
         parent_node = None
         current_node = self.__root
 
         while True:
-            if self.__function:
-                if self.__function(current_node.data) == self.__function(data):
-                    return current_node, parent_node
-            else:
-                if current_node.data == data:
-                    return current_node, parent_node
+            if self.__is__equals(current_node.data, data):
+                return current_node, parent_node
 
-            if self.compare(data, current_node.data):
+            if self.__is_less_than(data, current_node.data):
                 if current_node.left:
                     parent_node = current_node
                     current_node = current_node.left
                     continue
-
             else:
                 if current_node.right:
                     parent_node = current_node
                     current_node = current_node.right
                     continue
 
-            return False
+            return None, None
 
     def delete(self, data):
-        try:
-            current_node, parent_node = self.find(data)
-        except TypeError:
+        current_node, parent_node = self.__find(data)
+
+        if not current_node:
             return False
 
-        # удаляем лист
         if not current_node.left and not current_node.right:
-            try:
+            # удаляем лист
+            if not parent_node:
+                # удаляемый лист это корень
+                self.__root = None
+            elif parent_node.left == current_node:
                 # удаляемый лист это левый ребенок
-                if parent_node.left == current_node:
-                    parent_node.left = None
-                else:
-                    # удаляемый лист это правый ребенок
-                    parent_node.right = None
+                parent_node.left = None
+            else:
+                # удаляемый лист это правый ребенок
+                parent_node.right = None
 
+            self.__count -= 1
+            return True
+
+        if not (current_node.left and current_node.right):
+            # удаляем узел с одним ребенком
+            child = current_node.left if current_node.left else current_node.right
+
+            if current_node == self.__root:
+                # удаляемый узел это корень
+                self.__root = child
+                current_node.left = None
+                current_node.right = None
                 self.__count -= 1
 
                 return True
 
-            except AttributeError:
-                # удаляемый лист это корень
-                self.__root = None
-                self.__count = 0
-
-                return True
-
-        # удаляем корень с одним ребенком
-        if current_node == self.__root and (not current_node.left or not current_node.right):
-            self.__root = current_node.left if current_node.left else current_node.right
-            current_node.left = None
-            current_node.right = None
-            self.__count -= 1
-
-            return True
-
-        # удаляем не корневой узел с одним ребенком
-        if current_node.left and not current_node.right or not current_node.left and current_node.right:
-            child = current_node.left if current_node.left else current_node.right
-
-            if self.compare(current_node.data, parent_node.data):
+            if self.__is_less_than(current_node.data, parent_node.data):
                 parent_node.left = child
             else:
                 parent_node.right = child
@@ -202,7 +188,7 @@ class Tree:
 
                 return True
 
-            if self.compare(current_node.data, parent_node.data):
+            if current_node.data < parent_node.data:
                 parent_node.left = next_node
             else:
                 parent_node.right = next_node
@@ -225,7 +211,7 @@ class Tree:
             previous_next.left = None
 
         if parent_node:
-            if self.compare(current_node.data, parent_node.data):
+            if current_node.data < parent_node.data:
                 parent_node.left = next_node
             else:
                 parent_node.right = next_node
@@ -235,24 +221,12 @@ class Tree:
 
         next_node.left = current_node.left
         next_node.right = current_node.right
+        self.__count -= 1
 
         return True
 
-    def compare(self, node_1, node_2) -> bool:
-        if self.__function:
-            if self.__function(node_1) < self.__function(node_2):
-                return True
-            else:
-                return False
-        else:
-            if node_1 < node_2:
-                return True
-            else:
-                return False
-
     def __contains__(self, item):
-        try:
-            if self.find(item)[0]:
-                return True
-        except TypeError:
+        if not self.__find(item)[0]:
             return False
+
+        return True
