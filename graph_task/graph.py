@@ -2,109 +2,92 @@ from collections import deque
 
 
 class Graph:
-    def __init__(self, graph):
-        if not isinstance(graph, list):
-            raise TypeError(f'Incorrect type of argument "{type(graph).__name__}", not list')
+    def __init__(self, graph_matrix):
+        if not isinstance(graph_matrix, list):
+            raise TypeError(f'Incorrect type of argument "{type(graph_matrix).__name__}", not list')
 
-        if not all(isinstance(item, int) for row in graph for item in row):
-            raise TypeError(f'Incorrect type for graph item, not int')
+        if not all(isinstance(row, list) for row in graph_matrix):
+            raise TypeError(f'Incorrect type, must be list')
 
-        self.__graph = graph
-        self.__count = len(graph)
+        max_size = len(max((row for row in graph_matrix), key=len))
+        min_size = len(min((row for row in graph_matrix), key=len))
 
-    def visit_in_width(self, function=None):
-        visited = [False] * self.__count
+        if max_size != min_size or max_size != len(graph_matrix):
+            raise ValueError(f'Graph matrix must be square size')
 
-        graph_deque = deque()
-        graph_deque.appendleft(0)
+        if not all(isinstance(item, int) for row in graph_matrix for item in row):
+            raise TypeError(f'Incorrect type for matrix item, not int')
 
-        while graph_deque:
-            key = False
+        self.__graph_matrix = graph_matrix
+        self.__count = len(graph_matrix)
 
-            if visited[vertex := graph_deque.pop()]:
-                continue
-
-            try:
-                function(self.__graph[vertex][vertex])
-            except TypeError:
-                pass
-
-            visited[vertex] = True
-
-            for i in range(self.__count):
-                if vertex == i:
-                    continue
-
-                if self.__graph[vertex][i] == 1 and not visited[i]:
-                    graph_deque.appendleft(i)
-                    key = True
-                    continue
-
-            if not key:
-                try:
-                    new_vertex = visited.index(False)
-                    graph_deque.appendleft(new_vertex)
-                except ValueError:
-                    return
-
-    def visit_in_depth(self, function=None):
+    def visit_in_width(self, function):
         visited = [False] * self.__count
         graph_deque = deque()
-        graph_deque.appendleft(0)
 
-        while graph_deque:
-            key = False
+        while any(not visit for visit in visited):
+            vertex = visited.index(False)
+            graph_deque.appendleft(vertex)
 
-            if visited[vertex := graph_deque.popleft()]:
-                continue
+            while len(graph_deque) != 0:
+                vertex = graph_deque.pop()
 
-            try:
-                function(self.__graph[vertex][vertex])
-            except TypeError:
-                pass
-
-            visited[vertex] = True
-
-            for i in range(self.__count - 1, -1, -1):
-                key = False
-
-                if vertex == i:
+                if visited[vertex]:
                     continue
 
-                if self.__graph[vertex][i] == 1 and not visited[i]:
-                    graph_deque.appendleft(i)
-                    key = True
+                function(vertex, end=' ')
+                visited[vertex] = True
+
+                for i in range(self.__count):
+                    if vertex == i:
+                        continue
+
+                    if self.__graph_matrix[vertex][i] == 1 and not visited[i]:
+                        graph_deque.appendleft(i)
+
+    def visit_in_depth(self, function):
+        visited = [False] * self.__count
+        graph_deque = deque()
+
+        while any(not visit for visit in visited):
+            vertex = visited.index(False)
+            graph_deque.appendleft(vertex)
+
+            while len(graph_deque) != 0:
+                vertex = graph_deque.popleft()
+
+                if visited[vertex]:
                     continue
 
-            if not key and not graph_deque:
-                try:
-                    new_vertex = visited.index(False)
-                    graph_deque.appendleft(new_vertex)
-                except ValueError:
-                    return
+                function(vertex, end=' ')
+                visited[vertex] = True
 
-    def visit_in_depth_with_recursion(self, vertex, visited=None, function=None):
-        if visited is None:
-            visited = [False] * self.__count
+                for i in range(self.__count - 1, -1, -1):
+                    if vertex == i:
+                        continue
 
-        try:
-            function(self.__graph[vertex][vertex])
-        except TypeError:
-            pass
+                    if self.__graph_matrix[vertex][i] == 1 and not visited[i]:
+                        graph_deque.appendleft(i)
 
+    def __visit_in_depth_with_recursion(self, vertex, visited, function):
+        function(vertex, end=' ')
         visited[vertex] = True
 
         for i in range(self.__count):
             if i == vertex:
                 continue
 
-            if self.__graph[vertex][i] == 1 and not visited[i]:
-                self.visit_in_depth_with_recursion(i, visited, function=function)
+            if self.__graph_matrix[vertex][i] == 1 and not visited[i]:
+                self.__visit_in_depth_with_recursion(i, visited, function)
 
         try:
             new_vertex = visited.index(False)
-            self.visit_in_depth_with_recursion(new_vertex, visited, function=function)
+            self.__visit_in_depth_with_recursion(new_vertex, visited, function)
         except ValueError:
             return
 
-        return
+    def visit_in_depth_with_recursion(self, function):
+        visited = [False] * self.__count
+        vertex = 0
+
+        self.__visit_in_depth_with_recursion(vertex, visited, function)
