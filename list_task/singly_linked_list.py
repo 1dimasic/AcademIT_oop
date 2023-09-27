@@ -23,11 +23,11 @@ class SinglyLinkedList:
         if self.__count == 0:
             raise IndexError('List is empty')
 
-        data = self.__head.data
+        deleted_data = self.__head.data
         self.__head = self.__head.next
         self.__count -= 1
 
-        return data
+        return deleted_data
 
     def reverse(self):
         if self.__count <= 1:
@@ -35,34 +35,31 @@ class SinglyLinkedList:
 
         previous_item = None
         current_item = self.__head
-        next_item = current_item.next
 
         while current_item:
+            next_item = current_item.next
             current_item.next = previous_item
             previous_item = current_item
             current_item = next_item
-
-            if next_item:
-                next_item = next_item.next
 
         self.__head = previous_item
 
     def copy(self):
         current_item = self.__head
         other = SinglyLinkedList()
+        other.add_first(self.__head.data)
+        other_current_item = other.__head
 
-        while current_item:
-            other.add_first(current_item.data)
+        while current_item.next:
             current_item = current_item.next
+            other_current_item.next = ListItem(current_item.data)
+            other_current_item = other_current_item.next
+            other.__count += 1
 
         return other
 
     def insert(self, index, data):
-        if not isinstance(index, int):
-            raise TypeError(f'Incorrect type of argument "index" "{type(index).__name__}", must be int')
-
-        if index < 0 or index > self.__count:
-            raise IndexError(f'Incorrect index value, must be in ({0, self.__count})')
+        self.__check_key(index, self.__count + 1)
 
         if index == 0:
             self.add_first(data)
@@ -77,25 +74,15 @@ class SinglyLinkedList:
     @staticmethod
     def __check_key(key, size):
         if not isinstance(key, int):
-            raise TypeError(f'Incorrect type of argument "{type(key).__name__}"')
+            raise TypeError(f'Incorrect type of argument "{type(key).__name__}", must be int')
 
         if key < 0 or key >= size:
-            raise IndexError(f'Incorrect index value, must be in {0, size - 1}, not {key}')
+            raise IndexError(f'Incorrect index value, must be in ({0, size - 1}), not {key}')
 
-    def __getitem__(self, item):
-        self.__check_key(item, self.__count)
+    def __getitem__(self, key):
+        self.__check_key(key, self.__count)
 
-        current_item = self.__head
-        current_index = 0
-
-        while current_item:
-            if current_index == item:
-                return current_item.data
-
-            current_index += 1
-            current_item = current_item.next
-
-        return None
+        return self.__get_item(key).data
 
     def __setitem__(self, key, data):
         self.__check_key(key, self.__count)
@@ -112,7 +99,6 @@ class SinglyLinkedList:
         previous_item = self.__get_item(key - 1)
         current_item = previous_item.next
         previous_item.next = current_item.next
-        current_item.next = None
         self.__count -= 1
 
         return current_item.data
@@ -124,14 +110,13 @@ class SinglyLinkedList:
         while current_item:
             if current_item.data == data:
                 if previous_item is None:
-                    self.__head = current_item.next
+                    self.__head = self.__head.next
                     current_item.next = None
                     self.__count -= 1
 
                     return True
 
                 previous_item.next = current_item.next
-                current_item.next = None
                 self.__count -= 1
 
                 return True
@@ -165,3 +150,5 @@ class SinglyLinkedList:
 
             current_item = current_item.next
             current_index += 1
+
+        return

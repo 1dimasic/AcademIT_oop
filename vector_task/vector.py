@@ -57,6 +57,8 @@ class Vector:
 
         if size > len(self.__components):
             self.__components.extend([0] * (size - len(self.__components)))
+        else:
+            self.__components = self.__components[:size]
 
     def __repr__(self):
         return '{%s}' % ', '.join(map(str, self.__components))
@@ -154,7 +156,7 @@ class Vector:
             raise IndexError(f'Incorrect index value, must be in ({0, self.size - 1})')
 
         if not isinstance(value, int | float):
-            raise TypeError(f'Vector component must be a number, not {type(value)}')
+            raise TypeError(f'Vector component must be a number, not {type(value).__name__}')
 
         self.__components[key] = value
 

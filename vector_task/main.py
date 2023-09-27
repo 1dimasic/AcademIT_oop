@@ -9,7 +9,7 @@ vector_1 = Vector(2)
 vector_2 = Vector(3, [3, 4, 8])
 vector_3 = Vector(vector_2)
 vector_4 = Vector([6, -5])
-vector_5 = Vector(5, [3, 4, 5])
+vector_5 = Vector(2, [3, 4, 5])
 
 # проверка методов __init__, __repr__, свойств
 print_vector(vector_1)
