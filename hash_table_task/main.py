@@ -9,6 +9,9 @@ hash_table.add(-99)
 hash_table.add(16)
 hash_table.add('16')
 
+value = -2
+print(f'{value} in hash table:...{value in hash_table}')
+
 print(hash_table)
 hash_table.delete(100)
 print(hash_table)
