@@ -90,11 +90,11 @@ class View:
         try:
             input_temperature = float(self.__input_entry.get())
         except ValueError:
-            self.show(f'Input value type must be a number\n')
+            self.show('Input value type must be a number\n')
 
         input_scale = self.__input_scale.get()
 
         if not input_scale:
-            self.show(f'Select input scale\n')
+            self.show('Select input scale\n')
 
         self.__controller.convert_temperature(input_temperature, input_scale)
