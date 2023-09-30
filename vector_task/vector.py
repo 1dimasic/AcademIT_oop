@@ -57,7 +57,8 @@ class Vector:
 
         if size > len(self.__components):
             self.__components.extend([0] * (size - len(self.__components)))
-        else:
+
+        if size < len(self.__components):
             self.__components = self.__components[:size]
 
     def __repr__(self):
