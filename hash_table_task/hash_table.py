@@ -15,7 +15,7 @@ class HashTable(Collection):
 
     def __contains__(self, value):
         index = self.__get_index(value)
-        return value in self.__table[index]
+        return value in self.__table[index] if self.__table[index] else False
 
     def __len__(self):
         return self.__size
