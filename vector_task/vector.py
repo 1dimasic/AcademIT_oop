@@ -53,13 +53,7 @@ class Vector:
         if not all(isinstance(component, int | float) for component in components):
             raise ValueError(f'Vector components must be numbers')
 
-        self.__components = components[:]
-
-        if size > len(self.__components):
-            self.__components.extend([0] * (size - len(self.__components)))
-
-        if size < len(self.__components):
-            self.__components = self.__components[:size]
+        self.__components = components[:size] + [0] * (size - len(components))
 
     def __repr__(self):
         return '{%s}' % ', '.join(map(str, self.__components))
