@@ -50,4 +50,8 @@ class Model:
 
     def play(self, x, y):
         if self.__field[x][y] == -1:
-            print('1')
+            return -1
+
+    def play_1(self, x, y):
+        if self.__field[x][y] == 0:
+            print('0')

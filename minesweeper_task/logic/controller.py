@@ -8,4 +8,8 @@ class Controller:
         self.__view.add_widgets_on_game_field(game_field, size_x, size_y)
 
     def play(self, x, y):
-        self.__model.play(x, y)
+        a = self.__model.play(x, y)
+        self.__view.change(x, y)
+
+    def play_1(self, x, y):
+        self.__model.play_1(x, y)

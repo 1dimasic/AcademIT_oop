@@ -87,10 +87,16 @@ class View:
 
         for i in range(size_x):
             for j in range(size_y):
-                button = Button(self.__fields_frame, command=(lambda x=i, y=j: self.__controller.play(x, y)), width=2)
+                button = Button(self.__fields_frame, text=field[i][j], width=2)
                 button.grid(row=i, column=j, sticky=NSEW)
+                button.bind('<Button-1>', lambda event, x=i, y=j: self.__controller.play(x, y))
+                button.bind('<Button-3>', lambda event, x=i, y=j: self.__controller.play_1(x, y))
 
         height = str(24 * size_y)
         width = str(26 * size_x)
         self.__root.geometry(height + 'x' + width)
         self.__fields_frame.pack(expand=True, fill=BOTH)
+
+    def change(self, x, y):
+        label = Label(self.__fields_frame, text='OK', relief=)
+        label.grid(row=x, column=y, sticky=NSEW)
