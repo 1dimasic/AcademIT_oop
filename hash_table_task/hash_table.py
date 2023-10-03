@@ -14,7 +14,8 @@ class HashTable(Collection):
         self.__size = 0
 
     def __contains__(self, value):
-        return value in list(self)
+        index = self.__get_index(value)
+        return self.__table[index] and value in self.__table[index]
 
     def __len__(self):
         return self.__size
