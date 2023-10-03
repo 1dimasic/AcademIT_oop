@@ -85,18 +85,40 @@ class View:
         for widget in self.__fields_frame.winfo_children():
             widget.destroy()
 
-        for i in range(size_x):
-            for j in range(size_y):
-                button = Button(self.__fields_frame, text=field[i][j], width=2)
-                button.grid(row=i, column=j, sticky=NSEW)
-                button.bind('<Button-1>', lambda event, x=i, y=j: self.__controller.play(x, y))
-                button.bind('<Button-3>', lambda event, x=i, y=j: self.__controller.play_1(x, y))
+        for x in range(size_x):
+            for y in range(size_y):
+                button = Button(self.__fields_frame, text=field[x][y], width=2)
+                button.grid(row=x, column=y, sticky=NSEW)
+                button.bind('<Button-1>', lambda event, i=x, j=y: self.__controller.pushed_left_click(i, j))
+                button.bind('<Button-3>', lambda event, i=x, j=y: self.__controller.pushed_right_click(i, j))
 
         height = str(24 * size_y)
         width = str(26 * size_x)
         self.__root.geometry(height + 'x' + width)
         self.__fields_frame.pack(expand=True, fill=BOTH)
 
-    def change(self, x, y):
-        label = Label(self.__fields_frame, text='OK', relief=)
-        label.grid(row=x, column=y, sticky=NSEW)
+    def show_all_manes_and_game_over(self, minefields):
+        # TODO Картинка бомбы
+        # bomb_logo = PhotoImage(file='')
+
+        for x, y in minefields:
+            label = Label(self.__fields_frame, text='b', width=2)
+            label.grid(row=x, column=y, sticky=NSEW)
+
+        for widget in self.__fields_frame.winfo_children():
+            if isinstance(widget, Button):
+                widget.config(state='disabled')
+
+    def hide_flag(self, data, x, y):
+        button = Button(self.__fields_frame, text=data, width=2)
+        button.grid(row=x, column=y, sticky=NSEW)
+        button.bind('<Button-1>', lambda event, i=x, j=y: self.__controller.pushed_left_click(i, j))
+        button.bind('<Button-3>', lambda event, i=x, j=y: self.__controller.pushed_right_click(i, j))
+
+    def show_flag(self, x, y):
+        # TODO Картинка флажка
+        # bomb_logo = PhotoImage(file='')
+
+        button = Button(self.__fields_frame, text='f', width=2)
+        button.grid(row=x, column=y, sticky=NSEW)
+        button.bind('<Button-1>', lambda event, i=x, j=y: self.__controller.pushed_left_click(i, j))

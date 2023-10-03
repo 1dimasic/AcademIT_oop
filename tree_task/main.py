@@ -7,21 +7,21 @@ tree_list_2 = [20, 8, 25, 7, 18, 24, 28, 17, 19, 17, 26, 10, 12]
 for i in range(15):
     tree = Tree()
 
-    for node in tree_list_1:
-        tree.add(node)
+    for value in tree_list_1:
+        tree.add(value)
 
-    nodes = tree_list_1[:]
-    random.shuffle(nodes)
+    values = tree_list_1[:]
+    random.shuffle(values)
 
-    for node in nodes:
-        tree.delete(node)
+    for value in values:
+        tree.delete(value)
 
     print('%s:....%s' % (i, len(tree)))
 
 tree = Tree()
 
-for node in tree_list_1:
-    tree.add(node)
+for value in tree_list_1:
+    tree.add(value)
 
 tree.visit_in_depth_with_recursion(print)
 print()

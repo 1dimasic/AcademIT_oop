@@ -17,7 +17,7 @@ print(f'Array list: {array_list_1}, size: {len(array_list_1)}')
 array_list_1.__delitem__(3)
 print(f'Array list: {array_list_1}, size: {len(array_list_1)}')
 
-array_list_1.insert(2, 10)
+array_list_1.insert(6, 10)
 print(f'Array list: {array_list_1}, size: {len(array_list_1)}')
 
 array_list_2 = ArrayList()

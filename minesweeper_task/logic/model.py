@@ -7,6 +7,11 @@ class Model:
         self.__size_y = None
         self.__mines_count = None
         self.__field = None
+        self.__minefields = []
+        self.__controller = None
+
+    def set_controller(self, controller):
+        self.__controller = controller
 
     def create_game_field(self, size_x, size_y, mines_count):
         self.__size_x = size_x
@@ -23,6 +28,7 @@ class Model:
                 continue
 
             self.__field[i][j] = -1
+            self.__minefields.append((i, j))
             current_mines_count += 1
 
         for x in range(self.__size_x):
@@ -48,10 +54,20 @@ class Model:
 
         return self.__field
 
-    def play(self, x, y):
-        if self.__field[x][y] == -1:
-            return -1
+    def pushed_left_click(self, x, y):
+        if isinstance(self.__field[x][y], str):
+            self.__field[x][y] = int(self.__field[x][y])
+            self.__controller.remove_flag(self.__field[x][y], x, y)
 
-    def play_1(self, x, y):
-        if self.__field[x][y] == 0:
-            print('0')
+        elif self.__field[x][y] == -1:
+            self.__controller.game_over(self.__minefields)
+
+        elif self.__field[x][y] == 0:
+            pass
+
+        else:
+            pass
+
+    def set_flag(self, x, y):
+        self.__field[x][y] = str(self.__field[x][y])
+        self.__controller.set_flag(x, y)

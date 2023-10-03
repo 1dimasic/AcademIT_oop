@@ -11,7 +11,7 @@ class Tree:
     def __len__(self):
         return self.__count
 
-    def __is__equals(self, data_1, data_2):
+    def __equals(self, data_1, data_2):
         if self.__key_function:
             return self.__key_function(data_1) == self.__key_function(data_2)
 
@@ -40,7 +40,6 @@ class Tree:
                     continue
 
                 current_node.left = node
-
             else:
                 if current_node.right:
                     current_node = current_node.right
@@ -55,9 +54,7 @@ class Tree:
         if self.__count == 0:
             return
 
-        current_node = self.__root
-
-        self.__visit_in_depth_with_recursion(current_node, function)
+        self.__visit_in_depth_with_recursion(self.__root, function)
 
     def __visit_in_depth_with_recursion(self, node, function):
         function(node.data)
@@ -113,7 +110,7 @@ class Tree:
         current_node = self.__root
 
         while True:
-            if self.__is__equals(current_node.data, data):
+            if self.__equals(current_node.data, data):
                 return current_node, parent_node
 
             if self.__is_less_than(data, current_node.data):
@@ -137,10 +134,10 @@ class Tree:
 
         if not current_node.left and not current_node.right:
             # удаляем лист
-            if not parent_node:
+            if current_node is self.__root:
                 # удаляемый лист это корень
                 self.__root = None
-            elif parent_node.left == current_node:
+            elif self.__is_less_than(current_node.data, parent_node.data):
                 # удаляемый лист это левый ребенок
                 parent_node.left = None
             else:
@@ -150,11 +147,11 @@ class Tree:
             self.__count -= 1
             return True
 
-        if not (current_node.left and current_node.right):
+        if not current_node.left or not current_node.right:
             # удаляем узел с одним ребенком
             child = current_node.left if current_node.left else current_node.right
 
-            if current_node == self.__root:
+            if current_node is self.__root:
                 # удаляемый узел это корень
                 self.__root = child
                 current_node.left = None
@@ -182,13 +179,13 @@ class Tree:
             next_node.left = current_node.left
             current_node.right = None
 
-            if not parent_node:
+            if parent_node is None:
                 self.__root = next_node
                 self.__count -= 1
 
                 return True
 
-            if current_node.data < parent_node.data:
+            if self.__is_less_than(current_node.data, parent_node.data):
                 parent_node.left = next_node
             else:
                 parent_node.right = next_node
@@ -211,11 +208,10 @@ class Tree:
             previous_next.left = None
 
         if parent_node:
-            if current_node.data < parent_node.data:
+            if self.__is_less_than(current_node.data, parent_node.data):
                 parent_node.left = next_node
             else:
                 parent_node.right = next_node
-
         else:
             self.__root = next_node
 
