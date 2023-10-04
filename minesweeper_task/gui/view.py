@@ -37,11 +37,15 @@ class View:
 
     @staticmethod
     def show_high_scores():
-        high_scores = Toplevel()
-        high_scores.geometry('300x300+500+150')
-        high_scores.title('High Scores')
-        button = Button(high_scores, text='OK', padx=30, pady=3)
-        button.pack(side=BOTTOM, anchor=SE, padx=5, pady=5)
+        with open('data/high scores.dat', 'r') as file:
+            high_scores = Toplevel()
+            high_scores.geometry('300x300+500+150')
+            high_scores.title('High Scores')
+            high_scores_table = file.readline()
+            label = Label(high_scores, text=high_scores_table)
+            button = Button(high_scores, text='OK', command=high_scores.quit, padx=30, pady=3)
+            button.pack(side=BOTTOM, anchor=SE, padx=5, pady=5)
+            label.pack(expand=YES)
 
     def __set_settings(self, x, y, mines_count, game_settings):
         size_x = int(x.get())
@@ -97,7 +101,7 @@ class View:
         self.__root.geometry(height + 'x' + width)
         self.__fields_frame.pack(expand=True, fill=BOTH)
 
-    def show_all_manes_and_game_over(self, minefields):
+    def show_all_mines_and_game_over(self, minefields):
         # TODO Картинка бомбы
         # bomb_logo = PhotoImage(file='')
 
@@ -108,17 +112,44 @@ class View:
         for widget in self.__fields_frame.winfo_children():
             if isinstance(widget, Button):
                 widget.config(state='disabled')
+                widget.unbind('<Button-1>')
+                widget.unbind('<Button-3>')
 
     def hide_flag(self, data, x, y):
-        button = Button(self.__fields_frame, text=data, width=2)
-        button.grid(row=x, column=y, sticky=NSEW)
-        button.bind('<Button-1>', lambda event, i=x, j=y: self.__controller.pushed_left_click(i, j))
-        button.bind('<Button-3>', lambda event, i=x, j=y: self.__controller.pushed_right_click(i, j))
+        current_button = self.__fields_frame.grid_slaves(row=x, column=y)[0]
+        current_button.config(text=data)
+        current_button.bind('<Button-3>', lambda event, i=x, j=y: self.__controller.pushed_right_click(i, j))
 
     def show_flag(self, x, y):
         # TODO Картинка флажка
         # bomb_logo = PhotoImage(file='')
+        current_button = self.__fields_frame.grid_slaves(row=x, column=y)[0]
+        current_button.config(text='f')
+        current_button.unbind('<Button-3>')
 
-        button = Button(self.__fields_frame, text='f', width=2)
-        button.grid(row=x, column=y, sticky=NSEW)
-        button.bind('<Button-1>', lambda event, i=x, j=y: self.__controller.pushed_left_click(i, j))
+    def show_winning_message(self, game_time):
+        for widget in self.__fields_frame.winfo_children():
+            if isinstance(widget, Button) and not isinstance(widget['text'], str):
+                widget.config(state='disabled')
+            else:
+                widget.unbind('<Button-1>')
+                widget.unbind('<Button-3>')
+
+        win = Toplevel()
+        message = f'Congratulations!\nYour win!\nYour time: {game_time:.2f}'
+        win.geometry('300x300+500+150')
+        win.title('Your win!')
+        label_1 = Label(win, text=message)
+        label_2 = Label(win, text='Enter your name')
+        player_name = Entry(win)
+
+        button = Button(win, text='OK', command=lambda: self.__controller.add_1(player_name.get(), game_time),
+                        padx=30, pady=3)
+        button.pack(side=BOTTOM, anchor=SE, padx=5, pady=5)
+        label_1.pack(side=TOP)
+        label_2.pack()
+        player_name.pack()
+
+    def show_field(self, x, y, data):
+        label = Label(self.__fields_frame, text=data, width=2)
+        label.grid(row=x, column=y, sticky=NSEW)
