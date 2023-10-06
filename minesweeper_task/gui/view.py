@@ -163,7 +163,8 @@ class View:
         player_name = Entry(win, width=15, font=('Arial', 14))
 
         button = Button(win, text='OK', padx=30, pady=3)
-        button.bind('<Button-1>', lambda event: self.__set_new_name_and_time(player_name.get(), game_time, win))
+        button.bind('<Button-1>',
+                    lambda event: self.__set_new_name_and_time(player_name.get(), round(game_time, 1), win))
         button.pack(side=BOTTOM, anchor=SE, padx=5, pady=5)
         label_1.pack(side=TOP)
         label_2.pack()
