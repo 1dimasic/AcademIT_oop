@@ -2,13 +2,14 @@ import sys
 from tkinter import *
 from tkinter.messagebox import *
 from tkinter import ttk
+from operator import itemgetter
 
 
 class View:
     def __init__(self):
         self.__root = Tk()
         self.__controller = None
-        self.__fields_frame = None
+        self.__game_field = None
 
     def set_controller(self, controller):
         self.__controller = controller
@@ -17,42 +18,52 @@ class View:
         self.__root.geometry('300x300+500+200')
         self.__root.title('Minesweeper')
         self.__add_menu()
-        self.__fields_frame = ttk.Frame()
-        self.__fields_frame.pack(expand=YES)
+        self.__game_field = ttk.Frame()
+        self.__game_field.pack(expand=YES)
         self.__root.mainloop()
 
     def __add_menu(self):
-        top = Menu(self.__root, tearoff=0)
-        self.__root.config(menu=top)
-        top.add_command(label='New game', command=self.__controller.prepare)
-        top.add_command(label='Settings', command=self.__show_game_settings)
-        top.add_command(label='High scores', command=self.show_high_scores)
-        top.add_command(label='About', command=self.show_about)
-        top.add_command(label='Exit', command=sys.exit)
+        main_menu = Menu(self.__root, tearoff=0)
+        self.__root.config(menu=main_menu)
+        game_menu = Menu(main_menu, tearoff=0)
+        game_menu.add_command(label='New game', command=self.__controller.start)
+        game_menu.add_command(label='Settings', command=self.__show_game_settings)
+        main_menu.add_cascade(label='Game', menu=game_menu)
+        main_menu.add_command(label='High scores', command=self.__show_high_scores)
+        main_menu.add_command(label='About', command=self.__show_about)
+        main_menu.add_command(label='Exit', command=sys.exit)
 
     @staticmethod
-    def show_about():
+    def __show_about():
         with open('data/about.dat', 'r') as file:
-            showinfo(title='About', message=file.read())
+            showinfo(title='About', message=file.read(), default='ok')
 
-    @staticmethod
-    def show_high_scores():
-        with open('data/high scores.dat', 'r') as file:
-            high_scores = Toplevel()
-            high_scores.geometry('300x300+500+150')
-            high_scores.title('High Scores')
-            high_scores_table = file.readline()
-            label = Label(high_scores, text=high_scores_table)
-            button = Button(high_scores, text='OK', command=high_scores.quit, padx=30, pady=3)
-            button.pack(side=BOTTOM, anchor=SE, padx=5, pady=5)
-            label.pack(expand=YES)
+    def __show_high_scores(self):
+        high_scores = Toplevel()
+        high_scores.geometry('250x300+500+150')
+        high_scores.resizable(False, False)
+        high_scores.title('High Scores')
+        high_scores_info = sorted(self.__controller.load_high_scores(), key=itemgetter(1))[:10]
+        names = ''
+        time = ''
 
-    def __set_settings(self, x, y, mines_count, game_settings):
+        for i in range(len(high_scores_info)):
+            names += str(high_scores_info[i][0]) + '\n'
+            time += str(high_scores_info[i][1]) + '\n'
+
+        button = Button(high_scores, text='OK', command=high_scores.destroy, padx=30, pady=3)
+        button.pack(side=BOTTOM, anchor=SE, padx=5, pady=5)
+        label_names = Label(high_scores, text=names, font=('Arial', 12, 'bold'), foreground='green', anchor=N)
+        label_time = Label(high_scores, text=time, font=('Arial', 12, 'bold'), foreground='red', anchor=N)
+        label_names.pack(side=LEFT, fill=Y)
+        label_time.pack(side=RIGHT, fill=Y)
+
+    def __set_settings(self, x, y, mines_count, window):
         size_x = int(x.get())
         size_y = int(y.get())
         mines_count = int(mines_count.get())
-        self.__controller.prepare(size_x, size_y, mines_count)
-        game_settings.destroy()
+        self.__controller.start(size_x, size_y, mines_count)
+        window.destroy()
 
     def __show_game_settings(self):
         game_settings = Toplevel()
@@ -68,8 +79,8 @@ class View:
         frame_1.pack(side=TOP, fill=X)
 
         frame_4 = ttk.Frame(game_settings, padding=[5, 5])
-        button = Button(frame_4, command=(lambda: self.__set_settings(size_x, size_y, mines_count, game_settings)),
-                        text='OK', padx=30, pady=5)
+        button = Button(frame_4, text='OK', padx=30, pady=5)
+        button.bind('<Button-1>', lambda event: self.__set_settings(size_x, size_y, mines_count, game_settings))
         button.pack(fill=X, padx=15, pady=2)
         frame_4.pack(side=BOTTOM, fill=X)
 
@@ -85,71 +96,90 @@ class View:
         mines_count.pack(side=RIGHT)
         frame_3.pack(side=RIGHT, fill=X, padx=20, pady=2)
 
-    def add_widgets_on_game_field(self, field, size_x, size_y):
-        for widget in self.__fields_frame.winfo_children():
+    def add_fields(self, size_x, size_y):
+        for widget in self.__game_field.winfo_children():
             widget.destroy()
 
         for x in range(size_x):
             for y in range(size_y):
-                button = Button(self.__fields_frame, text=field[x][y], width=2)
+                button = Button(self.__game_field, width=2)
                 button.grid(row=x, column=y, sticky=NSEW)
                 button.bind('<Button-1>', lambda event, i=x, j=y: self.__controller.pushed_left_click(i, j))
                 button.bind('<Button-3>', lambda event, i=x, j=y: self.__controller.pushed_right_click(i, j))
 
-        height = str(24 * size_y)
-        width = str(26 * size_x)
-        self.__root.geometry(height + 'x' + width)
-        self.__fields_frame.pack(expand=True, fill=BOTH)
+        self.__root.geometry(str(24 * size_y) + 'x' + str(26 * size_x))
+        self.__game_field.pack(expand=True, fill=BOTH)
+        self.__root.resizable(False, False)
 
     def show_all_mines_and_game_over(self, minefields):
         # TODO Картинка бомбы
         # bomb_logo = PhotoImage(file='')
-
         for x, y in minefields:
-            label = Label(self.__fields_frame, text='b', width=2)
+            label = Label(self.__game_field, text='B', width=2, font=('Arial', 8, 'bold'), foreground='blue')
             label.grid(row=x, column=y, sticky=NSEW)
 
-        for widget in self.__fields_frame.winfo_children():
+        for widget in self.__game_field.winfo_children():
             if isinstance(widget, Button):
-                widget.config(state='disabled')
+                widget.config(state='disabled', text='')
                 widget.unbind('<Button-1>')
                 widget.unbind('<Button-3>')
 
-    def hide_flag(self, data, x, y):
-        current_button = self.__fields_frame.grid_slaves(row=x, column=y)[0]
+            if isinstance(widget, Label) and widget['text'] != 'B':
+                widget.config(text='')
+
+    def put_away_flag(self, x, y, data):
+        current_button = self.__game_field.grid_slaves(row=x, column=y)[0]
         current_button.config(text=data)
         current_button.bind('<Button-3>', lambda event, i=x, j=y: self.__controller.pushed_right_click(i, j))
 
-    def show_flag(self, x, y):
+    def put_flag(self, x, y):
         # TODO Картинка флажка
-        # bomb_logo = PhotoImage(file='')
-        current_button = self.__fields_frame.grid_slaves(row=x, column=y)[0]
-        current_button.config(text='f')
+        # flag_logo = PhotoImage(file='')
+        current_button = self.__game_field.grid_slaves(row=x, column=y)[0]
+        current_button.config(text='F', font=('Arial', 8, 'bold'), foreground='red')
         current_button.unbind('<Button-3>')
 
+    def __set_new_name_and_time(self, name, time, window):
+        if len(name) != 0:
+            self.__controller.add_to_high_scores([name, time])
+            window.destroy()
+
     def show_winning_message(self, game_time):
-        for widget in self.__fields_frame.winfo_children():
-            if isinstance(widget, Button) and not isinstance(widget['text'], str):
-                widget.config(state='disabled')
-            else:
-                widget.unbind('<Button-1>')
-                widget.unbind('<Button-3>')
+        for widget in self.__game_field.winfo_children():
+            if isinstance(widget, Button):
+                if not isinstance(widget['text'], str):
+                    widget.config(state='disabled')
+                else:
+                    widget.unbind('<Button-1>')
+                    widget.unbind('<Button-3>')
 
         win = Toplevel()
-        message = f'Congratulations!\nYour win!\nYour time: {game_time:.2f}'
-        win.geometry('300x300+500+150')
+        message = f'    Your win!\nYour time: {game_time:.2f}'
+        win.geometry('300x200+500+150')
+        win.resizable(False, False)
         win.title('Your win!')
-        label_1 = Label(win, text=message)
-        label_2 = Label(win, text='Enter your name')
-        player_name = Entry(win)
+        label_1 = Label(win, text=message, font=('Arial', 14, 'bold'), foreground='red', justify=LEFT)
+        label_2 = Label(win, text='Enter your name', font=('Arial', 12, 'bold'))
+        player_name = Entry(win, width=15, font=('Arial', 14))
 
-        button = Button(win, text='OK', command=lambda: self.__controller.add_1(player_name.get(), game_time),
-                        padx=30, pady=3)
+        button = Button(win, text='OK', padx=30, pady=3)
+        button.bind('<Button-1>', lambda event: self.__set_new_name_and_time(player_name.get(), game_time, win))
         button.pack(side=BOTTOM, anchor=SE, padx=5, pady=5)
         label_1.pack(side=TOP)
         label_2.pack()
         player_name.pack()
 
-    def show_field(self, x, y, data):
-        label = Label(self.__fields_frame, text=data, width=2)
-        label.grid(row=x, column=y, sticky=NSEW)
+    def open_field(self, *args):
+        if len(args) == 3:
+            x = args[0]
+            y = args[1]
+            data = args[2]
+            label = Label(self.__game_field, text=data, width=2)
+            label.grid(row=x, column=y, sticky=NSEW)
+
+        if len(args) == 1:
+            open_field = args[0].copy()
+
+            for x, y in open_field:
+                label = Label(self.__game_field, text=open_field[(x, y)], width=2)
+                label.grid(row=x, column=y, sticky=NSEW)
