@@ -13,7 +13,7 @@ class Matrix:
 
             if all(isinstance(size, int) for size in sizes):
                 if all(size > 0 for size in sizes):
-                    self.__rows = [Vector(columns_count)] * rows_count
+                    self.__rows = [[Vector(columns_count)] for _ in range(rows_count)]
 
                     return
 
@@ -78,8 +78,8 @@ class Matrix:
         if self.rows_count != other.rows_count or self.columns_count != other.columns_count:
             return False
 
-        for item_1, item_2 in zip(self.__rows, other.__rows):
-            if item_1 != item_2:
+        for row_1, row_2 in zip(self.__rows, other.__rows):
+            if row_1 != row_2:
                 return False
 
         return True
@@ -99,27 +99,27 @@ class Matrix:
 
         return matrix
 
-    def __getitem__(self, item):
-        if not isinstance(item, int):
-            raise TypeError(f'Index must be int, not {type(item).__name__}')
+    def __getitem__(self, index):
+        if not isinstance(index, int):
+            raise TypeError(f'Index must be int, not {type(index).__name__}')
 
-        if item < 0 or item >= self.rows_count:
-            raise IndexError(f'Incorrect index value, must be in {0, self.rows_count - 1}')
+        if index < 0 or index >= self.rows_count:
+            raise IndexError(f'Incorrect index value, must be in {0, self.rows_count - 1}, not {index}')
 
-        return Vector(self.__rows[item])
+        return Vector(self.__rows[index])
 
-    def __setitem__(self, key, value):
-        if not isinstance(key, int):
-            raise TypeError(f'Index must be int, not {type(key).__name__}')
+    def __setitem__(self, index, value):
+        if not isinstance(index, int):
+            raise TypeError(f'Index must be int, not {type(index).__name__}')
 
-        if key < 0 or key >= self.rows_count:
+        if index < 0 or index >= self.rows_count:
             raise IndexError(f'Incorrect index value, must be in {0, self.rows_count - 1}')
 
         if isinstance(value, list):
             if len(value) != self.columns_count:
                 raise ValueError(f'Incorrect vector size = {len(value)}, must be {self.columns_count}')
 
-            self.__rows[key] = Vector(value)
+            self.__rows[index] = Vector(value)
 
             return
 
@@ -127,7 +127,7 @@ class Matrix:
             if value.size != self.columns_count:
                 raise ValueError(f'Incorrect vector size = {value.size}, must be {self.columns_count}')
 
-            self.__rows[key] = Vector(value)
+            self.__rows[index] = Vector(value)
 
             return
 
@@ -189,10 +189,10 @@ class Matrix:
     def __sub__(self, other):
         self.__check_correct_type_and_sizes_equality(other)
 
-        difference = Matrix(self)
-        difference -= other
+        matrices_difference = Matrix(self)
+        matrices_difference -= other
 
-        return difference
+        return matrices_difference
 
     def __matmul__(self, other):
         if isinstance(other, Matrix):
@@ -246,7 +246,7 @@ class Matrix:
         return Vector([row[index] for row in self.__rows])
 
     def transpose(self):
-        self.__rows = [Vector(list(vector)) for vector in zip(*self.__rows)]
+        self.__rows = [Vector(list(column)) for column in zip(*self.__rows)]
 
     def __get_minor(self, i):
         return Matrix([list(vector)[:i] + list(vector)[i + 1:] for vector in self.__rows[1:]])
