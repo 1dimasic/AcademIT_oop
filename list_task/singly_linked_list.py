@@ -45,18 +45,20 @@ class SinglyLinkedList:
         self.__head = previous_item
 
     def copy(self):
-        current_item = self.__head
-        other = SinglyLinkedList()
-        other.add_first(self.__head.data)
-        other_current_item = other.__head
+        list_copy = SinglyLinkedList()
+        list_copy.__count = self.__count
 
-        while current_item.next:
-            current_item = current_item.next
-            other_current_item.next = ListItem(current_item.data)
-            other_current_item = other_current_item.next
-            other.__count += 1
+        if self.__count != 0:
+            current_item = self.__head
+            list_copy.__head = self.__head
+            list_copy_current_item = list_copy.__head
 
-        return other
+            while current_item.next:
+                current_item = current_item.next
+                list_copy_current_item.next = ListItem(current_item.data)
+                list_copy_current_item = list_copy_current_item.next
+
+        return list_copy
 
     def insert(self, index, data):
         self.__check_key(index, self.__count + 1)
@@ -111,7 +113,6 @@ class SinglyLinkedList:
             if current_item.data == data:
                 if previous_item is None:
                     self.__head = self.__head.next
-                    current_item.next = None
                     self.__count -= 1
 
                     return True
@@ -127,18 +128,18 @@ class SinglyLinkedList:
         return False
 
     def __repr__(self):
-        singly_linked_list = []
+        output_list = []
 
         if self.__count == 0:
-            return str(singly_linked_list)
+            return str(output_list)
 
         current_item = self.__head
 
         while current_item:
-            singly_linked_list.append(current_item.data)
+            output_list.append(current_item.data)
             current_item = current_item.next
 
-        return str(singly_linked_list)
+        return str(output_list)
 
     def __get_item(self, index):
         current_item = self.__head
@@ -151,4 +152,4 @@ class SinglyLinkedList:
             current_item = current_item.next
             current_index += 1
 
-        return
+        raise IndexError(f'Incorrect index value, must be in ({0, self.__count - 1}), not {index}')
