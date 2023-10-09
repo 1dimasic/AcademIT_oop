@@ -222,7 +222,4 @@ class Tree:
         return True
 
     def __contains__(self, item):
-        if not self.__find(item)[0]:
-            return False
-
-        return True
+        return self.__find(item)[0]
