@@ -7,14 +7,14 @@ class ArrayList(MutableSequence):
             raise TypeError(f'Type of capacity must be int, not {type(capacity).__name__}')
 
         if capacity < 0:
-            raise ValueError(f'Capacity must be >=0, not {capacity}')
+            raise ValueError(f'Capacity must be >= 0, not {capacity}')
 
         self.__items = [None] * capacity
         self.__size = 0
 
     def __check_index_type_and_value(self, index):
         if not isinstance(index, int):
-            raise TypeError(f'Incorrect type of argument "{type(index).__name__}"')
+            raise TypeError(f'Incorrect type of argument "{type(index).__name__}", must be int')
 
         if index < 0 or index >= self.__size:
             raise IndexError(f'Incorrect index value, must be in {0, self.__size - 1}, not {index}')
@@ -58,20 +58,21 @@ class ArrayList(MutableSequence):
             self.__items = self.__items[:self.__size]
 
     def __increase_capacity(self):
-        self.__items += [None] * (len(self.__items) + 1)
+        if len(self.__items) == 0:
+            self.__items = [None] * 10
+
+        self.__items += [None] * len(self.__items)
 
     def __len__(self):
         return self.__size
 
     def __iter__(self):
-        for item in self.__items:
-            if item is None:
-                continue
-
-            yield item
+        for i in range(self.__size):
+            yield self.__items[i]
 
     def insert(self, index, value):
-        self.__check_index_type_and_value(index)
+        if index != self.__size:
+            self.__check_index_type_and_value(index)
 
         if self.__size >= len(self.__items):
             self.__increase_capacity()
@@ -149,9 +150,6 @@ class ArrayList(MutableSequence):
 
     def __reversed__(self):
         for i in range(self.__size - 1, -1, -1):
-            if self.__items[i] is None:
-                continue
-
             yield self.__items[i]
 
     def index(self, item, start=None, stop=None):
@@ -161,11 +159,15 @@ class ArrayList(MutableSequence):
 
         elif start is not None and stop is None:
             stop = self.__size
+            self.__check_index_type_and_value(start)
 
         else:
             if start < 0 and stop < 0:
                 start += self.__size
                 stop += self.__size
+
+            self.__check_index_type_and_value(start)
+            self.__check_index_type_and_value(stop)
 
         for i in range(start, stop):
             if self.__items[i] == item:
@@ -193,9 +195,6 @@ class ArrayList(MutableSequence):
             return str(array_list)
 
         for i in range(self.__size):
-            if self.__items[i] is None:
-                continue
-
             array_list.append(self.__items[i])
 
         return str(array_list)
