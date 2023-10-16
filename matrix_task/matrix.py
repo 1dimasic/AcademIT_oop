@@ -13,14 +13,14 @@ class Matrix:
 
             if all(isinstance(size, int) for size in sizes):
                 if all(size > 0 for size in sizes):
-                    self.__rows = [[Vector(columns_count)] for _ in range(rows_count)]
+                    self.__rows = [Vector([0 for _ in range(columns_count)]) for _ in range(rows_count)]
 
                     return
 
                 raise ValueError(f'Sizes of the matrix must be > 0, not {rows_count} or {columns_count}')
 
-            raise TypeError(
-                f'Incorrect type of arguments "{type(rows_count).__name__}" or "{type(columns_count).__name__}"')
+            raise TypeError(f'Incorrect type of arguments "{type(rows_count).__name__}" or '
+                            f'"{type(columns_count).__name__}", must be int')
 
         if len(args) == 1:
             if isinstance(args[0], Matrix):
@@ -104,7 +104,7 @@ class Matrix:
             raise TypeError(f'Index must be int, not {type(index).__name__}')
 
         if index < 0 or index >= self.rows_count:
-            raise IndexError(f'Incorrect index value, must be in {0, self.rows_count - 1}, not {index}')
+            raise IndexError(f'Incorrect index value={index}, must be in {0, self.rows_count - 1}')
 
         return Vector(self.__rows[index])
 
@@ -113,7 +113,7 @@ class Matrix:
             raise TypeError(f'Index must be int, not {type(index).__name__}')
 
         if index < 0 or index >= self.rows_count:
-            raise IndexError(f'Incorrect index value, must be in {0, self.rows_count - 1}')
+            raise IndexError(f'Incorrect index value={index}, must be in {0, self.rows_count - 1}')
 
         if isinstance(value, list):
             if len(value) != self.columns_count:
@@ -135,7 +135,7 @@ class Matrix:
 
     def __mul__(self, other):
         if not isinstance(other, int | float):
-            raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
+            raise TypeError(f'Incorrect type of argument "{type(other).__name__}", must be int or float')
 
         product = Matrix(self)
         product *= other
@@ -146,7 +146,7 @@ class Matrix:
 
     def __imul__(self, other):
         if not isinstance(other, int | float):
-            raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
+            raise TypeError(f'Incorrect type of argument "{type(other).__name__}", must be int or float')
 
         for i in range(self.rows_count):
             self.__rows[i] *= other
@@ -234,11 +234,11 @@ class Matrix:
 
             return Vector(vector)
 
-        raise TypeError(f'Incorrect type of argument "{type(other).__name__}"')
+        raise TypeError(f'Incorrect type of argument "{type(other).__name__}", must be class Matrix or class Vector')
 
     def get_column(self, index):
         if not isinstance(index, int):
-            raise TypeError(f'Incorrect type of argument "{type(index).__name__}"')
+            raise TypeError(f'Incorrect type of argument "{type(index).__name__}", must be int')
 
         if index < 0 or index >= self.columns_count:
             raise IndexError(f'Index column {index} out of range {0, self.columns_count - 1})')
