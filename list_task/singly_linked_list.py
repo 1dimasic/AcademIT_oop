@@ -48,15 +48,17 @@ class SinglyLinkedList:
         list_copy = SinglyLinkedList()
         list_copy.__count = self.__count
 
-        if self.__count != 0:
-            current_item = self.__head
-            list_copy.__head = self.__head
-            list_copy_current_item = list_copy.__head
+        if list_copy.__count == 0:
+            return list_copy
 
-            while current_item.next:
-                current_item = current_item.next
-                list_copy_current_item.next = ListItem(current_item.data)
-                list_copy_current_item = list_copy_current_item.next
+        current_item = self.__head
+        list_copy.__head = current_item
+        list_copy_current_item = list_copy.__head
+
+        while current_item.next:
+            current_item = current_item.next
+            list_copy_current_item.next.data = current_item.data
+            list_copy_current_item = list_copy_current_item.next
 
         return list_copy
 
@@ -113,13 +115,10 @@ class SinglyLinkedList:
             if current_item.data == data:
                 if previous_item is None:
                     self.__head = self.__head.next
-                    self.__count -= 1
+                else:
+                    previous_item.next = current_item.next
 
-                    return True
-
-                previous_item.next = current_item.next
                 self.__count -= 1
-
                 return True
 
             previous_item = current_item
