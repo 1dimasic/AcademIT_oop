@@ -13,7 +13,7 @@ class Matrix:
 
             if all(isinstance(size, int) for size in sizes):
                 if all(size > 0 for size in sizes):
-                    self.__rows = [Vector([0 for _ in range(columns_count)]) for _ in range(rows_count)]
+                    self.__rows = [Vector(columns_count) for _ in range(rows_count)]
 
                     return
 

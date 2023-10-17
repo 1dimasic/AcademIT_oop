@@ -26,8 +26,10 @@ class Graph:
         graph_deque = deque()
 
         for i in range(self.__count):
-            if not visited[i]:
-                graph_deque.appendleft(i)
+            if visited[i]:
+                continue
+
+            graph_deque.appendleft(i)
 
             while len(graph_deque) != 0:
                 vertex = graph_deque.pop()
@@ -50,8 +52,10 @@ class Graph:
         graph_deque = deque()
 
         for i in range(self.__count):
-            if not visited[i]:
-                graph_deque.appendleft(i)
+            if visited[i]:
+                continue
+
+            graph_deque.appendleft(i)
 
             while len(graph_deque) != 0:
                 vertex = graph_deque.popleft()

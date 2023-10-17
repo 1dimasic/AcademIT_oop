@@ -46,19 +46,20 @@ class SinglyLinkedList:
 
     def copy(self):
         list_copy = SinglyLinkedList()
-        list_copy.__count = self.__count
 
-        if list_copy.__count == 0:
+        if self.__count == 0:
             return list_copy
 
-        current_item = self.__head
-        list_copy.__head = current_item
-        list_copy_current_item = list_copy.__head
+        list_copy.__count = self.__count
 
-        while current_item.next:
-            current_item = current_item.next
-            list_copy_current_item.next.data = current_item.data
+        list_copy.__head = ListItem(self.__head.data, list_copy.__head)
+        list_copy_current_item = list_copy.__head
+        current_item = self.__head.next
+
+        while current_item:
+            list_copy_current_item.next = ListItem(current_item.data)
             list_copy_current_item = list_copy_current_item.next
+            current_item = current_item.next
 
         return list_copy
 
