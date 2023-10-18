@@ -7,7 +7,7 @@ class ArrayList(MutableSequence):
             raise TypeError(f'Type of capacity must be int, not {type(capacity).__name__}')
 
         if capacity < 0:
-            raise ValueError(f'Capacity must be >= 0, not {capacity}')
+            raise ValueError(f'Incorrect capacity value = {capacity}, must be >= 0')
 
         self.__items = [None] * capacity
         self.__size = 0
@@ -17,7 +17,7 @@ class ArrayList(MutableSequence):
             raise TypeError(f'Incorrect type of argument "{type(index).__name__}", must be int')
 
         if index < 0 or index >= self.__size:
-            raise IndexError(f'Incorrect index value, must be in {0, self.__size - 1}, not {index}')
+            raise IndexError(f'Incorrect index value = {index}, must be in {0, self.__size - 1}')
 
     def __getitem__(self, index):
         if isinstance(index, slice):
@@ -60,6 +60,7 @@ class ArrayList(MutableSequence):
     def __increase_capacity(self):
         if len(self.__items) == 0:
             self.__items = [None] * 10
+            return
 
         self.__items += [None] * len(self.__items)
 
@@ -71,8 +72,11 @@ class ArrayList(MutableSequence):
             yield self.__items[i]
 
     def insert(self, index, value):
-        if index != self.__size:
-            self.__check_index_type_and_value(index)
+        if not isinstance(index, int):
+            raise TypeError(f'Incorrect type of argument "{type(index).__name__}", must be int')
+
+        if index < 0 or index > self.__size:
+            raise IndexError(f'Incorrect index value = {index}, must be in {0, self.__size}')
 
         if self.__size >= len(self.__items):
             self.__increase_capacity()
@@ -157,23 +161,24 @@ class ArrayList(MutableSequence):
             start = 0
             stop = self.__size
 
-        elif start is not None and stop is None:
+        if start is not None and stop is None:
             stop = self.__size
-            self.__check_index_type_and_value(start)
 
-        else:
-            if start < 0 and stop < 0:
-                start += self.__size
-                stop += self.__size
+        if start is None and stop is not None:
+            start = 0
+
+        if start < 0 and stop < 0:
+            start += self.__size
+            stop += self.__size
 
             self.__check_index_type_and_value(start)
             self.__check_index_type_and_value(stop)
 
-        for i in range(start, stop):
-            if self.__items[i] == item:
-                return i
+            for i in range(start, stop):
+                if self.__items[i] == item:
+                    return i
 
-        raise ValueError('Value not found')
+            raise ValueError('Value not found')
 
     def count(self, value):
         count = 0
