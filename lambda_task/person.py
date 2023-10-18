@@ -7,7 +7,7 @@ class Person:
             raise TypeError(f'Incorrect type {type(age).__name__}, must be int')
 
         if age <= 0:
-            raise ValueError(f'Age must be >0, not {age}')
+            raise ValueError(f'Age must be > 0, not {age}')
 
         self.__name = name
         self.__age = age
@@ -18,6 +18,9 @@ class Person:
 
     @name.setter
     def name(self, name):
+        if not isinstance(name, str):
+            raise TypeError(f'Incorrect type {type(name).__name__}, must be str')
+
         self.__name = name
 
     @property
@@ -26,4 +29,10 @@ class Person:
 
     @age.setter
     def age(self, age):
+        if not isinstance(age, int):
+            raise TypeError(f'Incorrect type {type(age).__name__}, must be int')
+
+        if age <= 0:
+            raise ValueError(f'Age must be > 0, not {age}')
+
         self.__age = age
