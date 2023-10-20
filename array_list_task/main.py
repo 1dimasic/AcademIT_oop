@@ -23,7 +23,7 @@ print(f'Array list: {array_list_1}, size: {len(array_list_1)}')
 array_list_2 = ArrayList()
 array_list_2.append(1)
 array_list_2.append(-1)
-array_list_1.extend(1)
+array_list_1.extend(array_list_2)
 print(f'Array list: {array_list_1}, size: {len(array_list_1)}')
 
 array_list_1.pop()
