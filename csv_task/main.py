@@ -1,6 +1,6 @@
-from csv_task.converter_csv_to_html import ConverterCsvToHtml
+from csv_task.csv_to_html_converter import CsvToHtmlConverter
 
-input_file = 'D:\\Python\\AcademIT_oop\\csv_task\\input.csv'
-output_file_name = 'output.html'
-csv_to_html = ConverterCsvToHtml()
-csv_to_html.convert(input_file, output_file_name)
+csv_file_path = 'D:\\Python\\AcademIT_oop\\csv_task\\input.csv'
+html_file_path = 'D:\\Python\\AcademIT_oop\\csv_task\\output.html'
+csv_to_html = CsvToHtmlConverter()
+csv_to_html.convert(csv_file_path, html_file_path)
