@@ -52,7 +52,7 @@ class SinglyLinkedList:
 
         list_copy.__count = self.__count
 
-        list_copy.__head = ListItem(self.__head.data, list_copy.__head)
+        list_copy.__head = ListItem(self.__head.data)
         list_copy_current_item = list_copy.__head
         current_item = self.__head.next
 
