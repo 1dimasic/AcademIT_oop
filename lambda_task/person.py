@@ -7,7 +7,7 @@ class Person:
             raise TypeError(f'Incorrect type {type(age).__name__}, must be int')
 
         if age <= 0:
-            raise ValueError(f'Age must be > 0, not {age}')
+            raise ValueError(f'Incorrect value = {age}, must be > 0')
 
         self.__name = name
         self.__age = age
@@ -33,6 +33,9 @@ class Person:
             raise TypeError(f'Incorrect type {type(age).__name__}, must be int')
 
         if age <= 0:
-            raise ValueError(f'Age must be > 0, not {age}')
+            raise ValueError(f'Incorrect value = {age}, must be > 0')
 
         self.__age = age
+
+    def __repr__(self):
+        return str(self.__name) + ' ' + str(self.__age)
