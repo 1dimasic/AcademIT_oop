@@ -96,13 +96,13 @@ class View:
         mines_count.pack(side=RIGHT)
         frame_3.pack(side=RIGHT, fill=X, padx=20, pady=2)
 
-    def add_fields(self, size_x, size_y):
+    def add_fields(self, size_x, size_y, a):
         for widget in self.__game_field.winfo_children():
             widget.destroy()
 
         for x in range(size_x):
             for y in range(size_y):
-                button = Button(self.__game_field, width=2)
+                button = Button(self.__game_field, width=2, text=a[x][y])
                 button.grid(row=x, column=y, sticky=NSEW)
                 button.bind('<Button-1>', lambda event, i=x, j=y: self.__controller.pushed_left_click(i, j))
                 button.bind('<Button-3>', lambda event, i=x, j=y: self.__controller.pushed_right_click(i, j))

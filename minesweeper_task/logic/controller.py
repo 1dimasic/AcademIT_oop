@@ -11,8 +11,8 @@ class Controller:
         if mines_count > size_x * size_y:
             raise ValueError(f'Mines count must be <= {size_x*size_y}, not {mines_count}')
 
-        self.__model.create_game_field(size_x, size_y, mines_count)
-        self.__view.add_fields(size_x, size_y)
+        a = self.__model.create_game_field(size_x, size_y, mines_count)
+        self.__view.add_fields(size_x, size_y, a)
         self.__start_time = time.time()
 
     def pushed_left_click(self, x, y):
