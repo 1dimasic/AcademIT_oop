@@ -36,6 +36,3 @@ class Person:
             raise ValueError(f'Incorrect value = {age}, must be > 0')
 
         self.__age = age
-
-    def __repr__(self):
-        return str(self.__name) + ' ' + str(self.__age)
