@@ -129,6 +129,9 @@ class ArrayList(MutableSequence):
 
         self.__check_index_type_and_value(index)
 
+        if index < 0:
+            index += self.__size
+
         item = self.__items[index]
 
         for i in range(index, self.__size - 1):
