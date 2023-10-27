@@ -96,18 +96,18 @@ class View:
         mines_count.pack(side=RIGHT)
         frame_3.pack(side=RIGHT, fill=X, padx=20, pady=2)
 
-    def add_fields(self, size_x, size_y, a):
+    def add_fields(self, width, height, a):
         for widget in self.__game_field.winfo_children():
             widget.destroy()
 
-        for x in range(size_x):
-            for y in range(size_y):
+        for x in range(width):
+            for y in range(height):
                 button = Button(self.__game_field, width=2, text=a[x][y])
                 button.grid(row=x, column=y, sticky=NSEW)
                 button.bind('<Button-1>', lambda event, i=x, j=y: self.__controller.pushed_left_click(i, j))
                 button.bind('<Button-3>', lambda event, i=x, j=y: self.__controller.pushed_right_click(i, j))
 
-        self.__root.geometry(str(24 * size_y) + 'x' + str(26 * size_x))
+        self.__root.geometry(str(24 * height) + 'x' + str(26 * width))
         self.__game_field.pack(expand=True, fill=BOTH)
         self.__root.resizable(False, False)
 
@@ -127,17 +127,17 @@ class View:
             if isinstance(widget, Label) and widget['text'] != 'B':
                 widget.config(text='')
 
-    def put_away_flag(self, x, y, data):
+    def put_away_flag(self, x, y):
         current_button = self.__game_field.grid_slaves(row=x, column=y)[0]
-        current_button.config(text=data)
-        current_button.bind('<Button-3>', lambda event, i=x, j=y: self.__controller.pushed_right_click(i, j))
+        current_button.config(text='!')
+        current_button.bind('<Button-1>', lambda event, i=x, j=y: self.__controller.pushed_left_click(i, j))
 
     def put_flag(self, x, y):
         # TODO Картинка флажка
         # flag_logo = PhotoImage(file='')
         current_button = self.__game_field.grid_slaves(row=x, column=y)[0]
         current_button.config(text='F', font=('Arial', 8, 'bold'), foreground='red')
-        current_button.unbind('<Button-3>')
+        current_button.unbind('<Button-1>')
 
     def __set_new_name_and_time(self, name, time, window):
         if len(name) != 0:
