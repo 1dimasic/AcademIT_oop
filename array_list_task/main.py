@@ -36,7 +36,7 @@ print(f'Array list: {array_list_1}, size: {len(array_list_1)}')
 array_list_1 += array_list_2
 print(f'Array list: {array_list_1}, size: {len(array_list_1)}')
 print(f'Value 10 in array list: {array_list_1}....{10 in array_list_1}')
-print(f'Value -8 in array list: {array_list_1}.....{-8 in array_list_1}')
+print(f'Value -8 in array list: {array_list_1}....{-8 in array_list_1}')
 
 iterator = array_list_1.__iter__()
 for item in iterator:
@@ -50,7 +50,7 @@ for item in iterator:
 
 print()
 
-print(f'Value {array_list_1[2]} index = {array_list_1.index(8,start=3, stop=6)}')
+print(f'Value {array_list_1[0]} index = {array_list_1.index(array_list_1[0],start=3, stop=6)}')
 
 print(f'Value {array_list_1[2]} count = {array_list_1.count(array_list_1[2])}')
 print(f'Value 100 count = {array_list_1.count(100)}')

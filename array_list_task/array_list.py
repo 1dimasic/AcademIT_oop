@@ -184,7 +184,7 @@ class ArrayList(MutableSequence):
         self.__check_index_type_and_value(start)
         self.__check_index_type_and_value(stop)
 
-        for i in range(start, stop):
+        for i in range(start, stop + 1):
             if self.__items[i] == item:
                 return i
 
