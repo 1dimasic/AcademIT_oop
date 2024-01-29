@@ -69,14 +69,15 @@ class Model:
         return Terms.NOT_EMPTY_FIELD, self.__field[x][y]
 
     def pushed_right_click(self, x, y):
-        # TODO Документирующий комментарий
         if self.__field[x][y] == Terms.MINE:
+            self.__flags_count += 1
             self.__remaining_mines_count -= 1
+            self.__field[x][y] = str(self.__field[x][y])
 
             if self.__remaining_mines_count == 0 and self.__flags_count == self.__mines_count:
                 return Terms.WIN
 
-            return 1
+            return Terms.FLAG_ON
 
         if isinstance(self.__field[x][y], str):
             self.__field[x][y] = int(self.__field[x][y])
@@ -86,11 +87,11 @@ class Model:
 
             self.__flags_count -= 1
 
-            return -2
+            return Terms.FLAG_OFF
 
         self.__flags_count += 1
         self.__field[x][y] = str(self.__field[x][y])
-        return 1
+        return Terms.FLAG_ON
 
     @staticmethod
     def add_to_high_scores(name_and_time):
@@ -139,3 +140,19 @@ class Model:
                         fields_deque.appendleft((neighbor_x, neighbor_y))
 
         return fields_for_opening
+
+    def pushed_center_click(self, x, y):
+        neighbors_field = []
+
+        for i in range(3):
+            for j in range(3):
+                if i != 1 and j != 1:
+                    neighbor_x = x - 1 + i
+                    neighbor_y = y - 1 + j
+
+                    if neighbor_x < 0 or neighbor_y < 0 or neighbor_x >= self.__width or neighbor_y >= self.__height:
+                        continue
+
+                    neighbors_field.append((neighbor_x, neighbor_y))
+
+        return neighbors_field

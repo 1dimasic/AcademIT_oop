@@ -41,14 +41,18 @@ class Controller:
     def pushed_right_click(self, x, y):
         result = self.__model.pushed_right_click(x, y)
 
-        if result == 1:
+        if result == Terms.FLAG_ON:
             self.__view.put_flag(x, y)
 
         if result == Terms.WIN:
             self.__view.show_winning_message(time.time() - self.__start_time)
 
-        if result == -2:
+        if result == Terms.FLAG_OFF:
             self.__view.put_away_flag(x, y)
+
+    def pushed_center_click(self, x, y):
+        neighbors_fields = self.__model.pushed_center_click(x, y)
+        self.__view.f(neighbors_fields)
 
     def add_to_high_scores(self, name_and_time):
         self.__model.add_to_high_scores(name_and_time)

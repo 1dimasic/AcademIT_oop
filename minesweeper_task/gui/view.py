@@ -3,6 +3,7 @@ from tkinter import *
 from tkinter.messagebox import *
 from tkinter import ttk
 from operator import itemgetter
+from PIL import ImageTk, Image
 
 
 class View:
@@ -85,14 +86,14 @@ class View:
         frame_4.pack(side=BOTTOM, fill=X)
 
         frame_2 = ttk.Frame(game_settings)
-        size_x = Spinbox(frame_2, from_=9, to=20, justify=CENTER, width=5)
+        size_x = Spinbox(frame_2, from_=9, to=20, justify=CENTER, width=5, state='readonly')
         size_x.pack(side=LEFT, padx=2)
-        size_y = Spinbox(frame_2, from_=9, to=20, justify=CENTER, width=5)
+        size_y = Spinbox(frame_2, from_=9, to=20, justify=CENTER, width=5, state='readonly')
         size_y.pack(side=RIGHT, padx=2)
         frame_2.pack(side=LEFT, fill=X, padx=20, pady=2)
 
         frame_3 = ttk.Frame(game_settings)
-        mines_count = Spinbox(frame_3, from_=10, to=50, justify=CENTER, width=15)
+        mines_count = Spinbox(frame_3, from_=10, to=40, justify=CENTER, width=15, state='readonly')
         mines_count.pack(side=RIGHT)
         frame_3.pack(side=RIGHT, fill=X, padx=20, pady=2)
 
@@ -105,6 +106,8 @@ class View:
                 button = Button(self.__game_field, width=2, text=a[x][y])
                 button.grid(row=x, column=y, sticky=NSEW)
                 button.bind('<Button-1>', lambda event, i=x, j=y: self.__controller.pushed_left_click(i, j))
+                button.bind('<Button-2>', lambda event, i=x, j=y: self.__controller.pushed_center_click(i, j))
+                button.bind('<ButtonRelease-2>', lambda event, i=x, j=y: self.__controller.unpushed_center_click(i, j))
                 button.bind('<Button-3>', lambda event, i=x, j=y: self.__controller.pushed_right_click(i, j))
 
         self.__root.geometry(str(24 * height) + 'x' + str(26 * width))
@@ -113,9 +116,12 @@ class View:
 
     def show_all_mines_and_game_over(self, minefields):
         # TODO Картинка бомбы
-        # bomb_logo = PhotoImage(file='')
+        image = Image.open('data/mine.gif')
+        image = image.resize((20, 20))
+        bomb_logo = ImageTk.PhotoImage(image)
+
         for x, y in minefields:
-            label = Label(self.__game_field, text='B', width=2, font=('Arial', 8, 'bold'), foreground='blue')
+            label = Label(self.__game_field, image=bomb_logo)
             label.grid(row=x, column=y, sticky=NSEW)
 
         for widget in self.__game_field.winfo_children():
@@ -124,19 +130,19 @@ class View:
                 widget.unbind('<Button-1>')
                 widget.unbind('<Button-3>')
 
-            if isinstance(widget, Label) and widget['text'] != 'B':
-                widget.config(text='')
-
     def put_away_flag(self, x, y):
         current_button = self.__game_field.grid_slaves(row=x, column=y)[0]
-        current_button.config(text='!')
+        current_button.config(image='')
         current_button.bind('<Button-1>', lambda event, i=x, j=y: self.__controller.pushed_left_click(i, j))
 
     def put_flag(self, x, y):
         # TODO Картинка флажка
-        # flag_logo = PhotoImage(file='')
+        image = Image.open('data/flag.gif')
+        image = image.resize((20, 20))
+        flag_logo = ImageTk.PhotoImage(image)
+
         current_button = self.__game_field.grid_slaves(row=x, column=y)[0]
-        current_button.config(text='F', font=('Arial', 8, 'bold'), foreground='red')
+        current_button.config(image=flag_logo)
         current_button.unbind('<Button-1>')
 
     def __set_new_name_and_time(self, name, time, window):
@@ -184,3 +190,9 @@ class View:
             for x, y in open_field:
                 label = Label(self.__game_field, text=open_field[(x, y)], width=2)
                 label.grid(row=x, column=y, sticky=NSEW)
+
+    def f(self, l):
+        for x, y in l:
+            current_widget = self.__game_field.grid_slaves(row=x, column=y)[0]
+
+            if isinstance(current_widget, Button):
