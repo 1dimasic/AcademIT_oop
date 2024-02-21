@@ -2,25 +2,34 @@ import sys
 from tkinter import *
 from tkinter.messagebox import *
 from tkinter import ttk
-from operator import itemgetter
-from PIL import ImageTk, Image
+from PIL import Image, ImageTk
 
 
 class View:
     def __init__(self):
         self.__root = Tk()
         self.__controller = None
-        self.__game_field = None
+        self.__logos = {}
 
     def set_controller(self, controller):
         self.__controller = controller
 
     def start(self):
-        self.__root.geometry('300x300+500+200')
+        self.__logos['flag'] = ImageTk.PhotoImage(Image.open('data/flag.png').resize((15, 15)))
+        self.__logos['bomb'] = ImageTk.PhotoImage(Image.open('data/bomb.jpg').resize((18, 18)))
+        self.__logos['main_logo'] = ImageTk.PhotoImage(Image.open('data/main_logo.png'))
+        self.__logos['1'] = ImageTk.PhotoImage(Image.open('data/numbers/1.png').resize((18, 18)))
+        self.__logos['2'] = ImageTk.PhotoImage(Image.open('data/numbers/2.png').resize((18, 18)))
+        self.__logos['3'] = ImageTk.PhotoImage(Image.open('data/numbers/3.png').resize((18, 18)))
+        self.__logos['4'] = ImageTk.PhotoImage(Image.open('data/numbers/4.png').resize((18, 18)))
+        self.__logos['5'] = ImageTk.PhotoImage(Image.open('data/numbers/5.png').resize((18, 18)))
+        self.__logos['6'] = ImageTk.PhotoImage(Image.open('data/numbers/6.png').resize((18, 18)))
+        self.__logos['7'] = ImageTk.PhotoImage(Image.open('data/numbers/7.png').resize((18, 18)))
+        self.__logos['8'] = ImageTk.PhotoImage(Image.open('data/numbers/8.png').resize((18, 18)))
+
+        self.__controller.start()
         self.__root.title('Minesweeper')
         self.__add_menu()
-        self.__game_field = ttk.Frame()
-        self.__game_field.pack(expand=YES)
         self.__root.mainloop()
 
     def __add_menu(self):
@@ -40,159 +49,138 @@ class View:
             showinfo(title='About', message=file.read(), default='ok')
 
     def __show_high_scores(self):
-        high_scores = Toplevel()
-        high_scores.geometry('250x300+500+150')
-        high_scores.resizable(False, False)
-        high_scores.title('High Scores')
-        high_scores_info = sorted(self.__controller.load_high_scores(), key=itemgetter(1))[:10]
-        names = ''
-        time = ''
+        win = Toplevel()
+        win.title('Таблица рекордов')
+        win.geometry('275x305+500+150')
+        win.config(padx=10, pady=10)
+        win.resizable(False, False)
 
-        for i in range(len(high_scores_info)):
-            names += str(high_scores_info[i][0]) + '\n'
-            time += str(high_scores_info[i][1]) + '\n'
+        high_scores = self.__controller.get_high_scores()
 
-        button = Button(high_scores, text='OK', command=high_scores.destroy, padx=30, pady=3)
-        button.pack(side=BOTTOM, anchor=SE, padx=5, pady=5)
-        label_names = Label(high_scores, text=names, font=('Arial', 12, 'bold'), foreground='green', anchor=N)
-        label_time = Label(high_scores, text=time, font=('Arial', 12, 'bold'), foreground='red', anchor=N)
-        label_names.pack(side=LEFT, fill=Y)
-        label_time.pack(side=RIGHT, fill=Y)
+        for i in range(11):
+            win.rowconfigure(index=i, weight=1)
 
-    def __set_settings(self, x, y, mines_count, window):
-        size_x = int(x.get())
-        size_y = int(y.get())
-        mines_count = int(mines_count.get())
-        self.__controller.start(size_x, size_y, mines_count)
-        window.destroy()
+        for i in range(2):
+            win.columnconfigure(index=i, weight=1)
+
+        for i in range(len(high_scores)):
+            Label(win, text=high_scores[i][0], font=('Arial', 12), justify=LEFT).grid(row=i, column=0)
+            Label(win, text=high_scores[i][1], font=('Arial', 12), justify=LEFT).grid(row=i, column=1)
+
+        Button(win, text='OK', width=15, command=win.destroy).grid(row=10, column=1, sticky=E)
+
+    def __set_settings(self, rows_count, columns_count, mines_count, window):
+        is_game_options_correct = self.__controller.start(rows_count.get(), columns_count.get(), mines_count.get())
+        if not is_game_options_correct[0]:
+            Label(window, text=is_game_options_correct[1], foreground="red").grid(row=2, column=0)
+        else:
+            window.destroy()
 
     def __show_game_settings(self):
         game_settings = Toplevel()
         game_settings.title('Game settings')
-        game_settings.geometry('250x120+500+150')
+        game_settings.geometry('345x125+500+150')
         game_settings.resizable(False, False)
+        font = ('Arial', 10,)
 
-        frame_1 = ttk.Frame(game_settings, padding=[5, 5])
-        input_size_label = Label(frame_1, text='Field size', width=15)
-        input_size_label.pack(side=LEFT)
-        mines_count_label = Label(frame_1, text='Mines count', width=15)
-        mines_count_label.pack(side=RIGHT)
-        frame_1.pack(side=TOP, fill=X)
+        for i in range(3):
+            game_settings.rowconfigure(index=i, weight=1)
 
-        frame_4 = ttk.Frame(game_settings, padding=[5, 5])
-        button = Button(frame_4, text='OK', padx=30, pady=5)
-        button.bind('<Button-1>', lambda event: self.__set_settings(size_x, size_y, mines_count, game_settings))
-        button.pack(fill=X, padx=15, pady=2)
-        frame_4.pack(side=BOTTOM, fill=X)
+        game_settings.columnconfigure(index=0, weight=7)
+        game_settings.columnconfigure(index=1, weight=3)
+        game_settings.columnconfigure(index=2, weight=1)
+        game_settings.columnconfigure(index=3, weight=3)
 
-        frame_2 = ttk.Frame(game_settings)
-        size_x = Spinbox(frame_2, from_=9, to=20, justify=CENTER, width=5, state='readonly')
-        size_x.pack(side=LEFT, padx=2)
-        size_y = Spinbox(frame_2, from_=9, to=20, justify=CENTER, width=5, state='readonly')
-        size_y.pack(side=RIGHT, padx=2)
-        frame_2.pack(side=LEFT, fill=X, padx=20, pady=2)
+        game_settings.config(padx=10, pady=10)
 
-        frame_3 = ttk.Frame(game_settings)
-        mines_count = Spinbox(frame_3, from_=10, to=40, justify=CENTER, width=15, state='readonly')
-        mines_count.pack(side=RIGHT)
-        frame_3.pack(side=RIGHT, fill=X, padx=20, pady=2)
+        Label(game_settings, text='Размер поля', font=font, justify=LEFT).grid(row=0, column=0)
+        rows_count = Entry(game_settings, width=3, font=font, justify=CENTER)
+        rows_count.grid(row=0, column=1, sticky=EW)
+        Label(game_settings, text='x', font=font).grid(row=0, column=2)
+        columns_count = Entry(game_settings, width=3, font=font, justify=CENTER)
+        columns_count.grid(row=0, column=3, sticky=EW)
 
-    def add_fields(self, width, height, a):
-        for widget in self.__game_field.winfo_children():
-            widget.destroy()
+        Label(game_settings, text='Количество мин', font=font, justify=LEFT).grid(row=1, column=0)
+        mines_count = Entry(game_settings, width=10, font=font, justify=CENTER)
+        mines_count.grid(row=1, column=1, columnspan=3, sticky=EW)
 
+        button = Button(game_settings, text='OK', width=10)
+        button.bind('<Button-1>',
+                    lambda event: self.__set_settings(rows_count, columns_count, mines_count, game_settings))
+        button.grid(row=2, column=1, columnspan=3, sticky=E)
+
+    def init_game_field(self, width, height):
         for x in range(width):
             for y in range(height):
-                button = Button(self.__game_field, width=2, text=a[x][y])
+                button = ttk.Button(self.__root, width=3)
                 button.grid(row=x, column=y, sticky=NSEW)
-                button.bind('<Button-1>', lambda event, i=x, j=y: self.__controller.pushed_left_click(i, j))
-                button.bind('<Button-2>', lambda event, i=x, j=y: self.__controller.pushed_center_click(i, j))
-                button.bind('<ButtonRelease-2>', lambda event, i=x, j=y: self.__controller.unpushed_center_click(i, j))
-                button.bind('<Button-3>', lambda event, i=x, j=y: self.__controller.pushed_right_click(i, j))
+                button.bind('<Button-1>', lambda event, i=x, j=y: self.__controller.click_left(i, j))
+                button.bind('<Button-3>', lambda event, i=x, j=y: self.__controller.click_right(i, j))
 
-        self.__root.geometry(str(24 * height) + 'x' + str(26 * width))
-        self.__game_field.pack(expand=True, fill=BOTH)
         self.__root.resizable(False, False)
 
-    def show_all_mines_and_game_over(self, minefields):
-        # TODO Картинка бомбы
-        image = Image.open('data/mine.gif')
-        image = image.resize((20, 20))
-        bomb_logo = ImageTk.PhotoImage(image)
+    def show_mines_and_game_over(self, fields):
+        for i in range(len(fields)):
+            for j in range(len(fields[i])):
+                if fields[i][j].data == -1:
+                    label = Label(self.__root, image=self.__logos['bomb'])
+                    label.grid(row=i, column=j, sticky=NSEW)
+                    continue
 
-        for x, y in minefields:
-            label = Label(self.__game_field, image=bomb_logo)
-            label.grid(row=x, column=y, sticky=NSEW)
+                if 1 <= fields[i][j].data <= 8:
+                    label = Label(self.__root, image=self.__logos[str(fields[i][j].data)])
+                    label.grid(row=i, column=j, sticky=NSEW)
+                    continue
 
-        for widget in self.__game_field.winfo_children():
-            if isinstance(widget, Button):
-                widget.config(state='disabled', text='')
-                widget.unbind('<Button-1>')
-                widget.unbind('<Button-3>')
+                label = Label(self.__root, image='')
+                label.grid(row=i, column=j, sticky=NSEW)
 
-    def put_away_flag(self, x, y):
-        current_button = self.__game_field.grid_slaves(row=x, column=y)[0]
-        current_button.config(image='')
-        current_button.bind('<Button-1>', lambda event, i=x, j=y: self.__controller.pushed_left_click(i, j))
+    def hide_flag(self, x, y):
+        current_button = self.__root.grid_slaves(row=x, column=y)[0]
+        current_button['image'] = ''
+        current_button.bind('<Button-1>', lambda event: self.__controller.click_left(x, y))
 
-    def put_flag(self, x, y):
-        # TODO Картинка флажка
-        image = Image.open('data/flag.gif')
-        image = image.resize((20, 20))
-        flag_logo = ImageTk.PhotoImage(image)
-
-        current_button = self.__game_field.grid_slaves(row=x, column=y)[0]
-        current_button.config(image=flag_logo)
+    def show_flag(self, x, y):
+        current_button = self.__root.grid_slaves(row=x, column=y)[0]
+        current_button['image'] = self.__logos['flag']
         current_button.unbind('<Button-1>')
 
-    def __set_new_name_and_time(self, name, time, window):
+    def __close_winning_message(self, name, time, window):
         if len(name) != 0:
-            self.__controller.add_to_high_scores([name, time])
+            self.__controller.add_player(name, time)
             window.destroy()
 
-    def show_winning_message(self, game_time):
-        for widget in self.__game_field.winfo_children():
-            if isinstance(widget, Button):
-                if not isinstance(widget['text'], str):
-                    widget.config(state='disabled')
-                else:
-                    widget.unbind('<Button-1>')
-                    widget.unbind('<Button-3>')
+    def show_winning_message(self, time):
+        for widget in self.__root.winfo_children():
+            widget.unbind('<Button-1>')
+            widget.unbind('<Button-2>')
+            widget.unbind('<Button-3>')
 
         win = Toplevel()
-        message = f'    Your win!\nYour time: {game_time:.2f}'
-        win.geometry('300x200+500+150')
+        win.geometry('230x155+500+150')
         win.resizable(False, False)
-        win.title('Your win!')
-        label_1 = Label(win, text=message, font=('Arial', 14, 'bold'), foreground='red', justify=LEFT)
-        label_2 = Label(win, text='Enter your name', font=('Arial', 12, 'bold'))
-        player_name = Entry(win, width=15, font=('Arial', 14))
+        win.title('ПОБЕДА!')
+
+        for i in range(5):
+            win.rowconfigure(index=i, weight=1)
+
+        win.columnconfigure(index=0, weight=1)
+
+        Label(win, text='Вы победили!', foreground='red', justify=CENTER, font=('Arial', 14, 'bold')).grid(row=0,
+                                                                                                           column=0)
+        Label(win, text=f'Ваше время: {time:.1f}', justify=CENTER, font=('Arial', 12, 'bold')).grid(row=1,
+                                                                                                    column=0)
+        Label(win, text='Введите Ваше имя', font=('Arial', 12)).grid(row=2, column=0)
+        name = Entry(win, width=15, font=('Arial', 12))
+        name.grid(row=3, column=0)
 
         button = Button(win, text='OK', padx=30, pady=3)
         button.bind('<Button-1>',
-                    lambda event: self.__set_new_name_and_time(player_name.get(), round(game_time, 1), win))
-        button.pack(side=BOTTOM, anchor=SE, padx=5, pady=5)
-        label_1.pack(side=TOP)
-        label_2.pack()
-        player_name.pack()
+                    lambda event: self.__close_winning_message(name.get(), time, win))
+        button.grid(row=4, column=0)
 
-    def open_field(self, *args):
-        if len(args) == 3:
-            x = args[0]
-            y = args[1]
-            data = args[2]
-            label = Label(self.__game_field, text=data, width=2)
+    def open_field(self, fields):
+        for x, y in fields.keys():
+            image = self.__logos[str(fields[(x, y)])] if fields[(x, y)] != 0 else ''
+            label = Label(self.__root, width=2, image=image)
             label.grid(row=x, column=y, sticky=NSEW)
-
-        if len(args) == 1:
-            open_field = args[0].copy()
-
-            for x, y in open_field:
-                label = Label(self.__game_field, text=open_field[(x, y)], width=2)
-                label.grid(row=x, column=y, sticky=NSEW)
-
-    def f(self, l):
-        for x, y in l:
-            current_widget = self.__game_field.grid_slaves(row=x, column=y)[0]
-
-            if isinstance(current_widget, Button):

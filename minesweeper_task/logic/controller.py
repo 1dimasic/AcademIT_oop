@@ -2,60 +2,69 @@ import time
 from minesweeper_task.logic.terms import Terms
 
 
+
 class Controller:
     def __init__(self, view, model):
         self.__model = model
         self.__view = view
         self.__start_time = None
 
-    def start(self, width=9, height=9, mines_count=10):
-        if width <= 0:
-            raise ValueError(f'Invalid value = {width}, must be > 0')
+    def start(self, rows=10, columns=10, mines=50):
+        try:
+            width = int(rows)
+            height = int(columns)
+        except ValueError:
+            return False, 'Некорректный тип данных'
 
-        if height <= 0:
-            raise ValueError(f'Invalid value = {height}, must be > 0')
+        try:
+            mines_count = int(mines)
+        except ValueError:
+            return False, 'Некорректный тип данных'
+
+        if width <= 0 or width > 15 or height <= 0 or height > 15:
+            return False, 'Размеры поля должны быть от 5 до 15'
 
         if mines_count <= 0:
-            raise ValueError(f'Invalid value = {mines_count}, must be > 0')
+            return False, 'Количество мин должно быть больше 0'
 
-        if mines_count > width * height * 0.15:
-            raise ValueError(f'Invalid value = {mines_count}, must be <= {width * height * 0.15}')
+        if mines_count > width * height * 0.8:
+            return False, f'Количество мин должно быть меньше {int(width * height * 0.15)}'
 
-        # TODO
-        a = self.__model.create_game_field(width, height, mines_count)
-        self.__view.add_fields(width, height, a)
+        self.__model.init_game_data(width, height, mines_count)
+        self.__view.init_game_field(width, height)
         self.__start_time = time.time()
 
-    def pushed_left_click(self, x, y):
-        result = self.__model.pushed_left_click(x, y)
+        return True, ''
 
-        if result[0] == Terms.MINE:
-            self.__view.show_all_mines_and_game_over(result[1])
+    def click_left(self, x, y):
+        result = self.__model.check_field(x, y)
 
-        if result[0] == Terms.EMPTY_FIELD:
-            self.__view.open_field(result[1])
+        if Terms.GAME_OVER in result:
+            self.__view.show_mines_and_game_over(result[Terms.GAME_OVER])
+            return
 
-        if result[0] == Terms.NOT_EMPTY_FIELD:
-            self.__view.open_field(x, y, result[1])
+        self.__view.open_field(result)
 
-    def pushed_right_click(self, x, y):
-        result = self.__model.pushed_right_click(x, y)
-
-        if result == Terms.FLAG_ON:
-            self.__view.put_flag(x, y)
+    def click_right(self, x, y):
+        result = self.__model.set_flag(x, y)
 
         if result == Terms.WIN:
+            self.__view.show_flag(x, y)
             self.__view.show_winning_message(time.time() - self.__start_time)
+            return
 
-        if result == Terms.FLAG_OFF:
-            self.__view.put_away_flag(x, y)
+        if result == Terms.FLAG_ON:
+            self.__view.show_flag(x, y)
+            return
+
+        self.__view.hide_flag(x, y)
 
     def pushed_center_click(self, x, y):
         neighbors_fields = self.__model.pushed_center_click(x, y)
         self.__view.f(neighbors_fields)
 
-    def add_to_high_scores(self, name_and_time):
-        self.__model.add_to_high_scores(name_and_time)
+    def add_player(self, name, game_time):
+        self.__model.add_player(name, game_time)
 
-    def load_high_scores(self):
-        return self.__model.load_high_scores()
+    def get_high_scores(self):
+        return self.__model.load_scores()
